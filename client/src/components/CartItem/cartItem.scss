@@ -1,0 +1,41 @@
+.cartItem {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    img {
+        width: 80px;
+        height: 110px;
+        object-fit: cover;
+        object-position: center;
+        margin-right: 2rem;
+        box-shadow: 5px 5px 15px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    &_name {
+        flex-grow: 1;
+        font-weight: 600;
+    }
+
+    .quantity-container {
+        margin: 0 4rem;
+
+        button {
+            background-color: transparent;
+            padding: 0 1rem;
+        }
+
+        input {
+            padding: 0;
+            text-align: center;
+            background-color: transparent;
+            width: 50px;
+        }
+    }
+
+    .remove-item {
+        padding: 0 1rem;
+        background-color: transparent;
+        margin-left: 2rem;
+    }
+}

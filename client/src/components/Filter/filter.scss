@@ -1,0 +1,12 @@
+.filter-container {
+    flex: 0.2;
+
+    .accordion {
+        padding: 1.5rem 2rem;
+        margin-bottom: 1rem;
+
+        .content {
+            margin-top: 2rem;
+        }
+    }
+}

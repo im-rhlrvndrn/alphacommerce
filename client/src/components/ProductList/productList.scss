@@ -1,0 +1,47 @@
+@import '../../mixins.scss';
+
+.productlist {
+    left: -2rem;
+    top: -100%;
+    // display: flex;
+    overflow: hidden;
+    position: relative;
+    width: calc(100% + 4rem);
+    transform: translateY(50%);
+
+    .productitem {
+        // display: flex;
+        // margin-right: 2rem;
+        align-items: center;
+
+        &:last-child {
+            margin: 0;
+        }
+
+        img {
+            width: 250px;
+            height: 350px;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        &-content {
+            padding: 3rem 2rem;
+            background-color: white;
+            width: 350px;
+
+            h2 {
+                font-weight: 600;
+                line-height: 2rem;
+            }
+
+            p {
+                opacity: 0.8;
+            }
+
+            .quantityBtns {
+                margin-top: 2rem;
+            }
+        }
+    }
+}

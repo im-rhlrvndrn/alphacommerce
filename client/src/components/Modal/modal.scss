@@ -1,0 +1,24 @@
+@import '../../mixins.scss';
+
+.modal-underlay {
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9;
+    background-color: rgba($color: #000000, $alpha: 0.8);
+}
+
+.modal {
+    top: 50%;
+    left: 50%;
+    z-index: 10;
+    height: auto;
+    width: 400px;
+    padding: 2rem;
+    position: fixed;
+    min-height: 400px;
+    background-color: $light;
+    transform: translate(-50%, -50%);
+}

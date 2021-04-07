@@ -1,0 +1,46 @@
+.category-page {
+    width: 100%;
+    min-height: calc(100vh - 80px);
+    height: auto;
+
+    &-hero-section {
+        width: 100%;
+        height: 40vh;
+        display: flex;
+        font-size: 5vw;
+        font-weight: 600;
+        align-items: center;
+        justify-content: center;
+        text-transform: capitalize;
+    }
+
+    main {
+        padding: 4rem;
+        position: relative;
+
+        .main-header {
+            margin-bottom: 1rem;
+        }
+
+        .filter-container {
+            top: 80px;
+            position: sticky;
+            height: max-content;
+
+            .accordion {
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        .main-container {
+            display: flex;
+            position: relative;
+            justify-content: space-between;
+
+            .category-container {
+                flex: 0.8;
+                padding: 0 0 0 4rem;
+            }
+        }
+    }
+}

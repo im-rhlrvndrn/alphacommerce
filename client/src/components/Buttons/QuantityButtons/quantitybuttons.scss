@@ -1,0 +1,32 @@
+.quantityBtns {
+    height: 50px;
+    display: flex;
+    position: relative;
+    width: max-content;
+
+    input {
+        flex-grow: 1;
+        width: 100px;
+        text-align: center;
+        background-color: transparent;
+
+        /* Chrome, Safari, Edge, Opera */
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        &[type='number'] {
+            -moz-appearance: textfield;
+        }
+    }
+
+    button {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 0 1.5rem;
+    }
+}
