@@ -32,8 +32,8 @@ export const Nav = () => {
     return (
         <>
             <nav style={{ backgroundColor: theme.dark_background, color: theme.color }}>
-                <div className='nav-ecommerce'>
-                    <h1 className='font-lg logo' style={{ marginRight: '2rem' }}>
+                <div className='nav'>
+                    <h1 className='font-lg logo margin-reset' style={{ marginRight: '2rem' }}>
                         <Link to='/' style={{ color: theme.color }}>
                             Bibliophile
                         </Link>
