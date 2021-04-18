@@ -1,20 +1,20 @@
-.readlist {
+.wishlist {
     padding: 2rem 4rem;
     min-height: calc(100vh - 80px);
     height: auto;
 
-    #readlist-search {
+    #wishlist-search {
         display: block;
         width: 80%;
         margin: 0 auto 2rem auto;
         border-radius: 5px;
     }
 
-    .readlist-wrapper {
+    .wishlist-wrapper {
         margin-top: 2rem;
         display: flex;
 
-        .readlist-item {
+        .wishlist-item {
             margin: 0 1rem 1rem 0;
             display: flex;
             border-radius: 5px;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../../../context/AuthContext';
-import { useTheme } from '../../../context/ThemeContext';
-import { useDataLayer } from '../../../context/DataLayerContext';
+import { useAuth } from '../../../context/AuthProvider';
+import { useTheme } from '../../../context/ThemeProvider';
+import { useDataLayer } from '../../../context/DataProvider';
 
 // styles
 import './addtocart.scss';
@@ -16,13 +16,13 @@ export const AddToCart = ({ item, style }) => {
     const [existsInCart, setExistsInCart] = useState(false);
 
     useEffect(() => {
-        const userIndex = cart.findIndex((cartItem) => cartItem.userId === currentUser);
+        // const userIndex = cart.findIndex((cartItem) => cartItem.userId === currentUser);
         setExistsInCart((prevState) =>
-            cart[userIndex].data?.findIndex((productItem) => productItem.id === item.id) === -1
+            cart.data?.findIndex((productItem) => productItem._id === item._id) === -1
                 ? false
                 : true
         );
-    }, [cart, currentUser]);
+    }, [cart, currentUser._id]);
 
     const addToCart = (item) => {
         dataDispatch({ type: 'ADDTOCART', payload: item });
@@ -47,7 +47,7 @@ export const AddToCart = ({ item, style }) => {
                     Add to cart
                 </button>
             ) : (
-                <QuantityButtons productId={item.id} />
+                <QuantityButtons productId={item._id} />
             )}
         </>
     );

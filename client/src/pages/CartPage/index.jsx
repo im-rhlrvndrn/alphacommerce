@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
-import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
-import { useDataLayer } from '../../context/DataLayerContext';
+import { useAuth } from '../../context/AuthProvider';
+import { useTheme } from '../../context/ThemeProvider';
+import { useDataLayer } from '../../context/DataProvider';
 
 // styles
 import './cartpage.scss';
@@ -16,7 +16,7 @@ import { CartCheckout } from './CartCheckout';
 export const CartPage = () => {
     const { theme } = useTheme();
     const history = useHistory();
-    const [{ users, currentUser }] = useAuth();
+    const [{ currentUser }] = useAuth();
     const [{ cart, read_list }, dataDispatch] = useDataLayer();
     const [readlistModal, setReadlistModal] = useState({ isActive: false });
     const [userCart, setUserCart] = useState([]);
@@ -24,9 +24,9 @@ export const CartPage = () => {
     // Determining the cart values based on authentication
 
     useEffect(() => {
-        const userIndex = cart.findIndex((cartItem) => cartItem.userId === currentUser);
-        setUserCart((prevState) => [...cart[userIndex].data]);
-        if (cart[userIndex].data.length === 0) history.replace('/');
+        // const userIndex = cart.findIndex((cartItem) => cartItem.userId === currentUser);
+        setUserCart((prevState) => cart.data);
+        // if (cart.data.length === 0) history.replace('/');
     }, [cart, currentUser]);
 
     // useEffect(() => {

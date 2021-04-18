@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useTheme } from '../../../context/ThemeContext';
-import { useDataLayer } from '../../../context/DataLayerContext';
+import { useTheme } from '../../../context/ThemeProvider';
+import { useDataLayer } from '../../../context/DataProvider';
 
 export const Radio = ({ data, dispatchType }) => {
     const { theme } = useTheme();

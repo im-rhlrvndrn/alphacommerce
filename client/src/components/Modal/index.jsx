@@ -1,6 +1,4 @@
-import { useState } from 'react';
-import { useTheme } from '../../context/ThemeContext';
-// import { withModalState } from '../../hoc/withModalState';
+import { useTheme } from '../../context/ThemeProvider';
 
 // styles
 import './modal.scss';
@@ -28,6 +26,3 @@ export const Modal = ({ setIsModalActive, children }) => {
         </>
     );
 };
-
-// const EnhancedModal = withModalState(Modal);
-// export { EnhancedModal };

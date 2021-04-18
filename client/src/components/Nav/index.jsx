@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthProvider';
+import { useTheme } from '../../context/ThemeProvider';
+import { useDataLayer } from '../../context/DataProvider';
 
 // styles
 import './nav.scss';
@@ -13,19 +14,17 @@ import { CartIcon } from '../../react_icons/CartIcon';
 import { DarkModeIcon } from '../../react_icons/DarkModeIcon';
 import { WishListIcon } from '../../react_icons/WishListIcon';
 import { LightModeIcon } from '../../react_icons/LightModeIcon';
-import { useEffect, useState } from 'react';
-import { useDataLayer } from '../../context/DataLayerContext';
 
 export const Nav = () => {
     const [_, dataDispatch] = useDataLayer();
     const { theme, isLightTheme, setTheme } = useTheme();
-    const [{ currentUser, users }, authDispatch] = useAuth();
+    const [{ currentUser }, authDispatch] = useAuth();
     const [authModal, setAuthModal] = useState({ isActive: false, authState: 'signup' });
 
     const toggleTheme = () => setTheme((prevState) => !prevState);
 
     useEffect(() => {
-        dataDispatch({ type: 'TRANSFER_GUEST_DATA_TO_USER', payload: { currentUser } });
+        // dataDispatch({ type: 'TRANSFER_GUEST_DATA_TO_USER', payload: { currentUser } });
         console.log('Re-render because of change in currentUser (NavComp)', currentUser);
     }, [currentUser]);
 
@@ -47,10 +46,7 @@ export const Nav = () => {
                     />
                     <Link to=''>
                         <span style={{ marginRight: '2rem', color: theme.color }}>
-                            Hello,{' '}
-                            {currentUser
-                                ? users.find((user) => user.id === currentUser)?.full_name?.text
-                                : 'Guest user'}
+                            Hello, {currentUser?.full_name}
                             <ul
                                 className='nav-dropdown'
                                 style={{
@@ -58,7 +54,7 @@ export const Nav = () => {
                                     color: theme.color,
                                 }}
                             >
-                                {currentUser === 'guest' && (
+                                {currentUser._id === 'guestUser' && (
                                     <>
                                         <li
                                             onClick={() =>
@@ -90,7 +86,7 @@ export const Nav = () => {
                                         </li>
                                     </>
                                 )}
-                                {currentUser !== 'guest' && (
+                                {currentUser._id !== 'guestUser' && (
                                     <li
                                         onClick={() => authDispatch({ type: 'LOGOUT' })}
                                         style={{
@@ -104,7 +100,7 @@ export const Nav = () => {
                         </span>
                     </Link>
                     <div className='cta-container'>
-                        <Link to='/readlist'>
+                        <Link to='/wishlists'>
                             <WishListIcon
                                 fill={theme.constants.icon}
                                 style={{ width: '24px', height: '24px' }}

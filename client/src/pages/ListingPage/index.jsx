@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router';
-import { useTheme } from '../../context/ThemeContext';
-import { useDataLayer } from '../../context/DataLayerContext';
+import { useTheme } from '../../context/ThemeProvider';
+import { useDataLayer } from '../../context/DataProvider';
 import { deSlugify, generateSearchParams, getFilteredData, getSortedData } from '../../utils';
 
 // styles

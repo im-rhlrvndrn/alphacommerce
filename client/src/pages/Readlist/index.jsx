@@ -1,44 +1,43 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthProvider';
 import { useHistory, useParams } from 'react-router';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../context/ThemeProvider';
+import { useDataLayer } from '../../context/DataProvider';
 import { ReadlistItem } from '../../components/ReadlistItem';
-import { useDataLayer } from '../../context/DataLayerContext';
 
 export const Readlist = () => {
     const { theme } = useTheme();
     const history = useHistory();
-    let userIndex, readListIndex;
+    let userIndex, wishListIndex;
     const urlParams = useParams();
     const [{ currentUser }] = useAuth();
-    const [{ read_lists, products }] = useDataLayer();
-    const [readList, setReadList] = useState({});
+    const [{ wishlists, products }] = useDataLayer();
+    const [wishList, setWishList] = useState({});
 
     const renderReadListItems = () => {
         return products?.map((productItem) =>
-            readList?.products?.map(
-                (readListItem) =>
-                    readListItem.id === productItem.id && <ReadlistItem item={productItem} />
+            wishList?.data?.map(
+                (wishListItem) =>
+                    wishListItem._id === productItem._id && <ReadlistItem item={productItem} />
             )
         );
     };
 
     useEffect(() => {
-        userIndex = read_lists.findIndex((item) => item.userId === currentUser);
-        readListIndex = read_lists[userIndex].data.findIndex((item) => item.id === urlParams.id);
+        // userIndex = wishlists.findIndex((item) => item.userId === currentUser);
+        wishListIndex = wishlists.findIndex((item) => item._id === urlParams.id);
 
-        setReadList((prevState) => read_lists[userIndex].data[readListIndex]);
-        console.log('The readlist: ', read_lists[userIndex].data[readListIndex]);
-        if (readListIndex < 0 || read_lists[userIndex].data[readListIndex].products.length === 0)
-            history.goBack();
-    }, [read_lists, currentUser]);
+        setWishList((prevState) => wishlists[wishListIndex]);
+        // if (wishListIndex < 0 || wishlists.data[wishListIndex].products.length === 0)
+        //     history.goBack();
+    }, [wishlists, currentUser]);
 
     // useEffect(() => {
-    //     userIndex = read_lists.findIndex((item) => item.userId === currentUser);
-    //     readListIndex = read_lists[userIndex].data.findIndex((item) => item.id === urlParams.id);
+    //     userIndex = wishlists.findIndex((item) => item.userId === currentUser);
+    //     wishListIndex = wishlists[userIndex].data.findIndex((item) => item.id === urlParams.id);
 
-    //     console.log('The readlist: ', read_lists[userIndex].data[readListIndex]);
-    //     if (readListIndex < 0 || read_lists[userIndex].data[readListIndex].products.length === 0)
+    //     console.log('The readlist: ', wishlists[userIndex].data[wishListIndex]);
+    //     if (wishListIndex < 0 || wishlists[userIndex].data[wishListIndex].products.length === 0)
     //         history.goBack();
     // }, []);
 
@@ -46,7 +45,7 @@ export const Readlist = () => {
         <>
             <div className='cart-wrapper' style={{ backgroundColor: theme.dark_background }}>
                 <div className='cart'>
-                    <h1 style={{ color: theme.color }}>{readList?.name?.text}</h1>
+                    <h1 style={{ color: theme.color }}>{wishList?.name?.text}</h1>
                     <div className='cart-items' style={{ color: theme.color }}>
                         {renderReadListItems()}
                     </div>
@@ -55,7 +54,7 @@ export const Readlist = () => {
                         style={{ backgroundColor: theme.light_background, color: theme.color }}
                         onClick={() => history.push('/')}
                     >
-                        Add more to readlist
+                        Add more to wishlist
                     </button>
                 </div>
                 <div
@@ -82,7 +81,7 @@ export const Readlist = () => {
                     >
                         <div className='checkout-group-row flex flex-justify-sb mb-1'>
                             <div className='heading'>total</div>
-                            <div className='price'>₹ {readList?.estimated_price?.value}</div>
+                            <div className='price'>₹ {wishList?.estimated_price?.value}</div>
                         </div>
                     </div>
                     <button

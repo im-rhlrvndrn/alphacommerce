@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { useTheme } from '../../../context/ThemeContext';
-import { useDataLayer } from '../../../context/DataLayerContext';
+import { maxWords } from '../../../utils/math_helpers';
+import { useAuth } from '../../../context/AuthProvider';
+import { useTheme } from '../../../context/ThemeProvider';
+import { useDataLayer } from '../../../context/DataProvider';
 
 // React components
 import { Modal } from '../../Modal';
 import { ReadlistModal } from '../../ReadlistModal';
-import { maxWords } from '../../../utils/math_helpers';
-import { useAuth } from '../../../context/AuthContext';
 import { CartIcon } from '../../../react_icons/CartIcon';
 import { RightArrowIcon } from '../../../react_icons/RightArrowIcon';
 import { OutlinedWishListIcon } from '../../../react_icons/OutlinedWishListIcon';
@@ -19,20 +19,21 @@ export const CategoryListItem = ({ item }) => {
     const { theme } = useTheme();
     const [{ currentUser }] = useAuth();
     const [{ cart }, dataDispatch] = useDataLayer();
-    const { id, name, coverImage, price, link, authors } = item;
+    const { _id, name, cover_image, price, link, authors } = item;
     const [existsInCart, setExistsInCart] = useState(false);
     const [readlistModal, setReadlistModal] = useState({ isActive: false });
 
     useEffect(() => {
-        const userIndex = cart.findIndex((cartItem) => cartItem.userId === currentUser);
+        // const userIndex = cart.findIndex((cartItem) => cartItem.userId === currentUser);
         setExistsInCart((prevState) =>
-            cart[userIndex].data?.findIndex((productItem) => productItem.id === item.id) === -1
+            cart.data?.findIndex((productItem) => productItem._id === item._id) === -1
                 ? false
                 : true
         );
-    }, [cart, currentUser]);
+    }, [cart, currentUser._id]);
 
     const addToCart = (item) => dataDispatch({ type: 'ADDTOCART', payload: item });
+    const removeFromCart = (id) => dataDispatch({ type: 'REMOVEFROMCART', payload: id });
 
     return (
         <>
@@ -43,16 +44,18 @@ export const CategoryListItem = ({ item }) => {
                         style={{
                             backgroundColor: existsInCart ? theme.constants.primary : theme.color,
                         }}
-                        onClick={() => {
-                            addToCart({
-                                id,
-                                name,
-                                coverImage: coverImage,
-                                quantity: 1,
-                                price: price.value,
-                                totalPrice: price.value,
-                            });
-                        }}
+                        onClick={() =>
+                            existsInCart
+                                ? removeFromCart(_id)
+                                : addToCart({
+                                      _id,
+                                      name,
+                                      cover_image,
+                                      quantity: 1,
+                                      price: price.value,
+                                      totalPrice: price.value,
+                                  })
+                        }
                     >
                         <CartIcon
                             style={{
@@ -73,11 +76,7 @@ export const CategoryListItem = ({ item }) => {
                         <OutlinedWishListIcon style={{ fill: theme.dark_background }} />
                     </div>
                 </div>
-                <img
-                    class='stretch'
-                    src={coverImage?.url}
-                    alt='girl with code reflection on face'
-                />
+                <img class='stretch' src={cover_image?.url} alt={name} />
                 <div
                     class='overlay flex flex-justify-sb flex-align-center'
                     style={{ backgroundColor: theme.dark_background }}
@@ -89,7 +88,7 @@ export const CategoryListItem = ({ item }) => {
                     </div>
                     <Link
                         // target='_blank'
-                        to={`/p/${id}`}
+                        to={`/p/${_id}`}
                         class='text-align-center font-lg rounded icon-50 flex flex-align-center flex-justify-center'
                         style={{ backgroundColor: theme.color, color: theme.dark_background }}
                     >
@@ -101,7 +100,7 @@ export const CategoryListItem = ({ item }) => {
                 <Modal setIsModalActive={setReadlistModal}>
                     <ReadlistModal
                         setIsModalActive={setReadlistModal}
-                        productIds={[{ id, totalPrice: price.value }]}
+                        productIds={[{ _id, totalPrice: price.value }]}
                     />
                 </Modal>
             )}

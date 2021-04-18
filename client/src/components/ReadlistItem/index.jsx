@@ -1,7 +1,7 @@
 import { useParams } from 'react-router';
 import { maxWords } from '../../utils/math_helpers';
-import { useTheme } from '../../context/ThemeContext';
-import { useDataLayer } from '../../context/DataLayerContext';
+import { useTheme } from '../../context/ThemeProvider';
+import { useDataLayer } from '../../context/DataProvider';
 
 // styles
 import './readlistItem.scss';
@@ -9,7 +9,7 @@ import './readlistItem.scss';
 // React components
 import { AddToCart } from '../Buttons';
 
-export const ReadlistItem = ({ item: { id, name, coverImage, price } }) => {
+export const ReadlistItem = ({ item: { _id, name, cover_image, price } }) => {
     const { theme } = useTheme();
     const urlParams = useParams();
     const [_, dataDispatch] = useDataLayer();
@@ -19,21 +19,21 @@ export const ReadlistItem = ({ item: { id, name, coverImage, price } }) => {
     const removeFromReadlist = (id) =>
         dataDispatch({
             type: 'REMOVEFROMREADLIST',
-            payload: { readlistId: urlParams.id, productId: id },
+            payload: { readlistId: urlParams.id, productId: _id },
         });
 
     return (
         <div className='readlistItem' style={{ color: theme.color }}>
-            <img src={coverImage?.url} alt={name} />
+            <img src={cover_image?.url} alt={name} />
             <p className='readlistItem_name'>{maxWords(name, 30)}</p>
             <p className='readlistItem_price'>₹ {price.value}</p>
             <AddToCart
                 style={{ margin: '0 2rem 0 0' }}
-                item={{ id, name, cover_image: coverImage, price }}
+                item={{ _id, name, cover_image: cover_image, price }}
             />
             <button
                 className='remove-item'
-                onClick={() => removeFromReadlist(id)}
+                onClick={() => removeFromReadlist(_id)}
                 style={{ color: theme.color }}
             >
                 X

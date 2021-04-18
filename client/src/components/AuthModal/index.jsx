@@ -1,8 +1,8 @@
-import { v4 } from 'uuid';
+import axios from '../../axios';
 import { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
-import { useDataLayer } from '../../context/DataLayerContext';
+import { useAuth } from '../../context/AuthProvider';
+import { useTheme } from '../../context/ThemeProvider';
+import { useDataLayer } from '../../context/DataProvider';
 
 // React components
 import { InputGroup } from '../InputGroup';
@@ -20,31 +20,51 @@ export const AuthModal = ({ auth = 'signup', setAuthModal }) => {
     const updateAuthData = (event) =>
         setAuthData((prevState) => ({ ...prevState, [event.target.name]: event.target.value }));
 
-    const authActionHandler = (event, { action }) => {
-        event.preventDefault();
-        if (action === 'login') {
-            authDispatch({
-                type: 'LOGIN',
-                payload: { username: authData.auth_username, password: authData.auth_password },
-            });
-        } else if (action === 'signup') {
-            const newUserId = v4();
-            authDispatch({
-                type: 'SIGNUP',
-                payload: {
-                    id: newUserId,
+    const authActionHandler = async (event, { action }) => {
+        try {
+            event.preventDefault();
+            if (action === 'login') {
+                const loginResponse = await axios.post('/auth/login', {
                     email: authData.auth_email,
-                    full_name: authData.auth_fullname,
-                    username: authData.auth_username,
                     password: authData.auth_password,
-                },
-            });
-            dataDispatch({ type: 'SETUP_NEW_USER', payload: { id: newUserId } });
-        } else {
-            return setAuthModal((prevState) => ({ ...prevState, isActive: !prevState.isActive }));
-        }
+                });
 
-        return setAuthModal((prevState) => ({ ...prevState, isActive: !prevState.isActive }));
+                console.log('Login Response: ', loginResponse);
+                authDispatch({
+                    type: 'LOGIN',
+                    payload: loginResponse.data.data.userId,
+                });
+            } else if (action === 'signup') {
+                const response = await axios.post('/auth/signup', {
+                    full_name: authData.auth_fullname,
+                    email: authData.auth_email,
+                    password: authData.auth_password,
+                    avatar: {},
+                });
+
+                console.log('Signup data: ', response);
+                authDispatch({
+                    type: 'SIGNUP',
+                    payload: {
+                        id: response.data.data._id,
+                        email: response.data.data.email,
+                        full_name: response.data.data.full_name,
+                        username: response.data.data.username,
+                        password: response.data.data.password,
+                    },
+                });
+                dataDispatch({ type: 'SETUP_NEW_USER', payload: { id: response.data.data._id } });
+            } else {
+                return setAuthModal((prevState) => ({
+                    ...prevState,
+                    isActive: !prevState.isActive,
+                }));
+            }
+
+            return setAuthModal((prevState) => ({ ...prevState, isActive: !prevState.isActive }));
+        } catch (error) {
+            console.log('Error => ', error.response);
+        }
     };
 
     const inputs = [
@@ -62,7 +82,7 @@ export const AuthModal = ({ auth = 'signup', setAuthModal }) => {
             },
         },
         {
-            condition: ['signup', 'login'],
+            condition: ['signup'],
             label: {
                 style: { color: theme.color },
             },
@@ -75,7 +95,7 @@ export const AuthModal = ({ auth = 'signup', setAuthModal }) => {
             },
         },
         {
-            condition: ['signup'],
+            condition: ['signup', 'login'],
             label: {
                 style: { color: theme.color },
             },

@@ -1,11 +1,13 @@
 import { v4 } from 'uuid';
 import { useEffect, useState } from 'react';
-import { useDataLayer } from '../../context/DataLayerContext';
-import { Accordion } from '../Accordion';
-import { Checkbox, Radio } from '../Inputs';
+import { useDataLayer } from '../../context/DataProvider';
 
 // styles
 import './filter.scss';
+
+// React components
+import { Accordion } from '../Accordion';
+import { Checkbox, Radio } from '../Inputs';
 
 export const Filter = () => {
     const [{ genres, authors }, dataDispatch] = useDataLayer();

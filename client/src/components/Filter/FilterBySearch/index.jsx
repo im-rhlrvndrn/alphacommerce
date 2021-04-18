@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useTheme } from '../../../context/ThemeContext';
 import { maxWords } from '../../../utils/math_helpers';
+import { useTheme } from '../../../context/ThemeProvider';
 
 export const FilterBySearch = ({ style, options, filterCallback }) => {
     const { data, filterBy } = options;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../../../context/AuthContext';
-import { useTheme } from '../../../context/ThemeContext';
-import { useDataLayer } from '../../../context/DataLayerContext';
+import { useAuth } from '../../../context/AuthProvider';
+import { useTheme } from '../../../context/ThemeProvider';
+import { useDataLayer } from '../../../context/DataProvider';
 
 // styles
 import './quantitybuttons.scss';
@@ -13,15 +13,15 @@ export const QuantityButtons = ({ productId }) => {
     const [{ cart }, dataDispatch] = useDataLayer();
 
     const updateCart = (inc) => {
-        dataDispatch({ type: 'UPDATECARTITEM', payload: { id: productId, inc } });
+        dataDispatch({ type: 'UPDATECARTITEM', payload: { _id: productId, inc } });
     };
 
     const removeFromCart = () => dataDispatch({ type: 'REMOVEFROMCART', payload: productId });
 
     useEffect(() => {
-        const userIndex = cart.findIndex((item) => item.userId === currentUser);
-        const cartItemIndex = cart[userIndex].data.findIndex((item) => item.id === productId);
-        setQuantity((prevState) => cart[userIndex].data[cartItemIndex].quantity);
+        // const userIndex = cart.findIndex((item) => item.userId === currentUser);
+        const cartItemIndex = cart.data.findIndex((item) => item._id === productId);
+        setQuantity((prevState) => cart.data[cartItemIndex].quantity);
     }, [cart]);
 
     return (

@@ -1,5 +1,5 @@
-import { useTheme } from '../../context/ThemeContext';
-import { useDataLayer } from '../../context/DataLayerContext';
+import { useTheme } from '../../context/ThemeProvider';
+import { useDataLayer } from '../../context/DataProvider';
 
 // React components
 import { ProductList } from '../../components/ProductList';

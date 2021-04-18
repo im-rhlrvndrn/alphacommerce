@@ -1,5 +1,5 @@
 import { useHistory } from 'react-router';
-import { useTheme } from '../../../context/ThemeContext';
+import { useTheme } from '../../../context/ThemeProvider';
 
 // React components
 import { CartItems } from './CartItems';
@@ -13,16 +13,20 @@ export const CartItemsContainer = ({ cart }) => {
             <h1 className='font-xl' style={{ color: theme.color }}>
                 Items in my cart ({cart.length})
             </h1>
-            <div className='cart-items' style={{ color: theme.color }}>
-                <div className='cart-items-heading'>
-                    <span>item</span>
-                    <span>price</span>
-                    <span>quantity</span>
-                    <span>total price</span>
-                    <span>remove</span>
+            {cart.length === 0 ? (
+                <p style={{ color: theme.color }}>No items in cart</p>
+            ) : (
+                <div className='cart-items' style={{ color: theme.color }}>
+                    <div className='cart-items-heading'>
+                        <span>item</span>
+                        <span>price</span>
+                        <span>quantity</span>
+                        <span>total price</span>
+                        <span>remove</span>
+                    </div>
+                    <CartItems cart={cart} />
                 </div>
-                <CartItems cart={cart} />
-            </div>
+            )}
             <button
                 className='continue-shopping mt-2 mr-2 font-s'
                 style={{

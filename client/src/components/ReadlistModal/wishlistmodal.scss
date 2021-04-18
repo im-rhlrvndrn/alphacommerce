@@ -1,6 +1,6 @@
 @import '../../mixins.scss';
 
-.readlist-modal {
+.wishlist-modal {
     width: 100%;
     height: 100%;
     display: flex;
@@ -30,7 +30,7 @@
         }
     }
 
-    .readlist-modal-wrapper {
+    .wishlist-modal-wrapper {
         // height: calc(300px - 1rem);
         flex-grow: 1;
         overflow-y: auto;

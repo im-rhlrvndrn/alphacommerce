@@ -1,4 +1,4 @@
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../context/ThemeProvider';
 
 // Styles
 import './accordion.scss';

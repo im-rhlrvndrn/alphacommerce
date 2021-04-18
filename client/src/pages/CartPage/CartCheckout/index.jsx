@@ -1,4 +1,4 @@
-import { useTheme } from '../../../context/ThemeContext';
+import { useTheme } from '../../../context/ThemeProvider';
 import {
     calculateSubTotal,
     calculateTax,
@@ -68,7 +68,7 @@ export const CartCheckout = ({ setReadlistModal, cart }) => {
                     }))
                 }
             >
-                Add to read list
+                Add to wishlist
             </button>
         </div>
     );

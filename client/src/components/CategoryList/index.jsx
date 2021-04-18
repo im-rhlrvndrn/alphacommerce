@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
 import { slugify } from '../../utils';
-import { useTheme } from '../../context/ThemeContext';
+import { Link } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeProvider';
 
 // Styles
 import './categoryList.scss';

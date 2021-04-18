@@ -1,51 +1,48 @@
 import { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
-import { useDataLayer } from '../../context/DataLayerContext';
+import { useAuth } from '../../context/AuthProvider';
+import { useTheme } from '../../context/ThemeProvider';
+import { useDataLayer } from '../../context/DataProvider';
 
 // styles
-import './readlistpage.scss';
+import './wishlistpage.scss';
 
 export const ReadlistPage = () => {
     const { theme } = useTheme();
     const history = useHistory();
     const [{ currentUser }] = useAuth();
-    const [{ read_lists }, dataDispatch] = useDataLayer();
-    const [readlists, setReadlists] = useState([]);
+    const [{ wishlists }, dataDispatch] = useDataLayer();
+    const [wish_lists, setWishlists] = useState([]);
 
-    console.log(readlists);
+    console.log(wish_lists);
 
     useEffect(() => {
-        setReadlists(
-            (prevState) =>
-                read_lists.filter((readlistItem) => readlistItem.userId === currentUser)[0]
-        );
-    }, [read_lists, currentUser]);
+        setWishlists((prevState) => wishlists);
+    }, [wishlists, currentUser]);
 
     return (
         <div
-            className='readlist'
+            className='wishlist'
             style={{ backgroundColor: theme.dark_background, color: theme.color }}
         >
             <input
                 type='text'
-                name='readlist-search'
-                aria-label='readlist search input'
-                id='readlist-search'
-                placeholder='Search for readlist by name'
+                name='wishlist-search'
+                aria-label='wishlist search input'
+                id='wishlist-search'
+                placeholder='Search for wishlist by name'
             />
-            <h1>My readlist</h1>
-            <div className='readlist-wrapper'>
-                {readlists?.data?.map(({ id, name, image }) => (
-                    <Link to={`/readlist/${id}`} key={id} className='readlist-item'>
-                        <img src={image?.url} alt={name.text} />
+            <h1>My wishlists</h1>
+            <div className='wishlist-wrapper'>
+                {wish_lists?.map(({ _id, name, cover_image }) => (
+                    <Link to={`/wishlists/${_id}`} key={_id} className='wishlist-item'>
+                        <img src={cover_image?.url} alt={name} />
                         <div
                             className='content'
                             style={{ backgroundColor: theme.light_background }}
                         >
                             <div className='name' style={{ color: theme.color }}>
-                                {name.text}
+                                {name}
                             </div>
                         </div>
                     </Link>

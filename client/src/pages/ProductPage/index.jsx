@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import { useTheme } from '../../context/ThemeContext';
+import { useEffect, useState } from 'react';
+import { useTheme } from '../../context/ThemeProvider';
 
 // styles
 import './productpage.scss';

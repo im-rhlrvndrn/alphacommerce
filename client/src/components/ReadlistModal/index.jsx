@@ -1,111 +1,108 @@
 import { v4 } from 'uuid';
 import { useEffect, useRef, useState } from 'react';
 import { maxWords } from '../../utils/math_helpers';
-import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
-import { useDataLayer } from '../../context/DataLayerContext';
+import { useAuth } from '../../context/AuthProvider';
+import { useTheme } from '../../context/ThemeProvider';
+import { useDataLayer } from '../../context/DataProvider';
 
 // styles
-import './readlistmodal.scss';
+import './wishlistmodal.scss';
 
 export const ReadlistModal = ({ setIsModalActive, productIds }) => {
     const { theme } = useTheme();
-    const readlistRef = useRef(null);
-    const [{ currentUser }] = useAuth();
+    const wishlistRef = useRef(null);
+    // const [{ currentUser }] = useAuth();
     const [filter, setFilter] = useState('');
-    const [{ read_lists }, dataDispatch] = useDataLayer();
-    const [newReadlistRef, setNewReadlistRef] = useState(false);
+    const [{ wishlists }, dataDispatch] = useDataLayer();
+    const [newWishlistRef, setNewWishlistRef] = useState(false);
 
-    const addNewReadlist = () => setNewReadlistRef((prevState) => !prevState);
+    const addNewWishlist = () => setNewWishlistRef((prevState) => !prevState);
 
-    const renderReadlistNames = (filter = '') => {
-        const userIndex = read_lists.findIndex((item) => item.userId === currentUser);
-        const filteredReadlist =
+    const renderWishlistNames = (filter = '') => {
+        // const userIndex = wishlists.findIndex((item) => item.userId === currentUser);
+        const filteredWishlist =
             filter !== ''
-                ? read_lists[userIndex].data.filter((item) =>
-                      item.name.text.toLowerCase().includes(filter.toLowerCase())
-                  )
-                : read_lists[userIndex].data;
+                ? wishlists.filter((item) => item.name.toLowerCase().includes(filter.toLowerCase()))
+                : wishlists;
 
-        if (filteredReadlist.length === 0)
+        if (filteredWishlist.length === 0)
             return <p style={{ color: theme.color, padding: '1rem' }}>No readlist</p>;
 
-        return filteredReadlist.map((readlistItem) => (
+        return filteredWishlist.map((wishlistItem) => (
             <div
                 className='readlist-item'
                 style={{ backgroundColor: theme.light_background }}
                 onClick={() => {
                     setIsModalActive((prevState) => !prevState);
                     dataDispatch({
-                        type: 'ADDTOREADLIST',
+                        type: 'ADDTOWISHLIST',
                         payload: {
-                            ...readlistItem,
-                            products: [...readlistItem.products, ...productIds],
+                            ...wishlistItem,
+                            data: [...wishlistItem.data, ...productIds],
                         },
                     });
                 }}
             >
-                {maxWords(readlistItem.name.text, 30)}
+                {maxWords(wishlistItem.name, 30)}
             </div>
         ));
     };
 
-    const createReadlist = (event) => {
-        setNewReadlistRef((prevState) => !prevState);
+    const createWishlist = (event) => {
+        setNewWishlistRef((prevState) => !prevState);
         if (event.target.textContent)
             dataDispatch({
-                type: 'CREATEREADLIST',
+                type: 'CREATEWISHLIST',
                 payload: {
-                    id: v4(),
-                    name: { text: event.target.textContent },
-                    image: {
+                    _id: v4(),
+                    user: 'guestUser',
+                    name: event.target.textContent,
+                    cover_image: {
                         url:
                             'https://images.pexels.com/photos/2685319/pexels-photo-2685319.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
                     },
-                    estimated_price: {
-                        value: 0,
-                    },
-                    products: [],
+                    estimated_price: 0,
+                    data: [],
                 },
             });
     };
 
     useEffect(() => {
-        if (newReadlistRef) readlistRef.current.focus();
-    }, [newReadlistRef]);
+        if (newWishlistRef) wishlistRef.current.focus();
+    }, [newWishlistRef]);
 
     return (
-        <div className='readlist-modal'>
-            <div className='heading'>Add to readlist</div>
+        <div className='wishlist-modal'>
+            <div className='heading'>Add to wishlist</div>
             <div className='cta'>
                 <input
                     type='text'
                     value={filter}
                     autoComplete='off'
-                    id='readlist-modal-input'
-                    name='readlist-modal-input'
-                    placeholder='Search for readlist...'
+                    id='wishlist-modal-input'
+                    name='wishlist-modal-input'
+                    placeholder='Search for wishlist...'
                     onChange={(event) => setFilter((prevState) => event.target.value)}
                     style={{ backgroundColor: theme.light_background, color: theme.color }}
                 />
                 <div
                     className='createNew'
-                    onClick={addNewReadlist}
+                    onClick={addNewWishlist}
                     style={{ backgroundColor: theme.dark_background, color: theme.color }}
                 >
-                    + Create readlist
+                    + Create wishlist
                 </div>
             </div>
-            <div className='readlist-modal-wrapper'>
-                {newReadlistRef && (
+            <div className='wishlist-modal-wrapper'>
+                {newWishlistRef && (
                     <div
-                        className='new-readlist'
+                        className='new-wishlist'
                         contentEditable
-                        ref={readlistRef}
-                        onBlur={createReadlist}
+                        ref={wishlistRef}
+                        onBlur={createWishlist}
                     ></div>
                 )}
-                {renderReadlistNames(filter)}
+                {renderWishlistNames(filter)}
             </div>
         </div>
     );

@@ -1,6 +1,6 @@
 import { maxWords } from '../../utils/math_helpers';
-import { useTheme } from '../../context/ThemeContext';
-import { useDataLayer } from '../../context/DataLayerContext';
+import { useTheme } from '../../context/ThemeProvider';
+import { useDataLayer } from '../../context/DataProvider';
 
 // Styles
 import './productList.scss';
@@ -15,16 +15,16 @@ export const ProductList = () => {
 
     return (
         <div className='productlist flex'>
-            {products?.map(({ id, name, summary, coverImage, price }) => (
-                <div className='productitem mr-2 flex' key={id}>
-                    <img className='margin-reset' src={coverImage?.url} alt={`Book: ${name}`} />
+            {products?.map(({ _id, name, summary, cover_image, price }) => (
+                <div className='productitem mr-2 flex' key={_id}>
+                    <img className='margin-reset' src={cover_image?.url} alt={`Book: ${name}`} />
                     <div
                         className='productitem-content flex flex-dir-cl'
                         style={{ color: theme.color, backgroundColor: theme.dark_background }}
                     >
                         <h2>{maxWords(name, 20)}</h2>
                         <p>{maxWords(summary?.text, 50)}</p>
-                        <AddToCart item={{ id, name, coverImage, price }} />
+                        <AddToCart item={{ _id, name, cover_image, price }} />
                     </div>
                 </div>
             ))}
