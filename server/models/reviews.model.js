@@ -4,8 +4,9 @@ const Schema = mongoose.Schema;
 const reviewSchema = new Schema(
     {
         entity: { type: String, required: true, default: 'Review' },
-        user: { type: Schema.Types.ObjectId, ref: 'Users' },
-        comment: { type: Schema.Types.ObjectId, ref: 'Comments' },
+        book: { type: Schema.Types.ObjectId, ref: 'Book' },
+        user: { type: Schema.Types.ObjectId, ref: 'User' },
+        comment: { type: Schema.Types.ObjectId, ref: 'Comment' },
         stats: {
             likes_count: { type: Number },
             dislikes_count: { type: Number },
@@ -16,4 +17,4 @@ const reviewSchema = new Schema(
     { timestamps: true }
 );
 
-module.exports = mongoose.model('Reviews', reviewSchema);
+module.exports = mongoose.model('Review', reviewSchema);

@@ -5,10 +5,13 @@ const authorSchema = new Schema(
     {
         entity: { type: String, required: true, default: 'Author' },
         name: { type: String, required: true },
-        books: [{ type: Schema.Types.ObjectId, ref: 'Products' }],
+        books: [{ type: Schema.Types.ObjectId, ref: 'Book' }],
+        avatar: {
+            url: { type: String },
+        },
         ratings: {
             average: { type: Number },
-            reviews: [{ type: Schema.Types.ObjectId, ref: 'Reviews' }],
+            reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }],
             voter_count: { type: Number },
             weekly: {
                 voter_count: { type: Number },
@@ -19,4 +22,4 @@ const authorSchema = new Schema(
     { timestamps: true }
 );
 
-module.exports = mongoose.model('Authors', authorSchema);
+module.exports = mongoose.model('Author', authorSchema);

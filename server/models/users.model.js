@@ -5,15 +5,15 @@ const userSchema = new Schema(
     {
         entity: { type: String, required: true, default: 'User' },
         full_name: { type: String, required: true },
-        email: { type: String, required: true },
+        email: { type: String, required: true, unique: true },
         password: { type: String, required: true },
         avatar: {
             url: { type: String },
         },
-        readlists: [{ type: Schema.Types.ObjectId, ref: 'Readlists' }],
-        cart: { type: Schema.Types.ObjectId, ref: 'Carts' },
+        cart: { type: Schema.Types.ObjectId, ref: 'Cart' },
+        wishlists: [{ type: Schema.Types.ObjectId, ref: 'Wishlist' }],
     },
     { timestamps: true }
 );
 
-module.exports = mongoose.model('Users', userSchema);
+module.exports = mongoose.model('User', userSchema);
