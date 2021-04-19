@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const router = require('express').Router();
 const Users = require('../models/users.model');
 const Cart = require('../models/carts.model');
-const CustomError = require('../utils/errorHandlers');
+const { CustomError, errorResponse } = require('../utils/errorHandlers');
 
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
@@ -29,9 +29,10 @@ router.post('/login', async (req, res) => {
             .json({ success: true, data: { token, user: { ...user._doc, password: null } } });
     } catch (error) {
         console.error(error);
-        res.status(+error.code).json({
+        errorResponse(res, {
             statusCode: +error.code,
             message: error.message,
+            toast: error.toastStatus,
         });
     }
 });
@@ -72,11 +73,18 @@ router.post('/signup', async (req, res) => {
         return res.status(201).json({ success: true, data: savedUser });
     } catch (error) {
         console.error(error);
-        res.status(+error.code).json({
+        errorResponse(res, {
             statusCode: +error.code,
             message: error.message,
+            toast: error.toastStatus,
         });
     }
+});
+
+router.get('/logout', (req, res) => {
+    res.cookie('token', 'loggedout');
+    res.cookie('userId', 'loggedout');
+    res.status(200).json({ success: true, message: "You're logged out" });
 });
 
 module.exports = router;

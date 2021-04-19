@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/auth.router');
 const bookRoutes = require('./routes/books.router');
+const genresRoutes = require('./routes/genres.router');
 const wishlistRoutes = require('./routes/wishlists.router');
 
 const app = express();
@@ -20,7 +21,8 @@ app.use(cookieParser());
 //     next();
 // });
 app.use('/auth', authRoutes);
-app.use('/products', bookRoutes);
+app.use('/books', bookRoutes);
+app.use('/genres', genresRoutes);
 app.use('/wishlists', wishlistRoutes);
 app.get('/', (req, res) => {
     res.json({ message: 'Hello everyone' });

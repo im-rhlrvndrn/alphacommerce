@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const CustomError = require('../utils/errorHandlers');
+const { CustomError, errorResponse } = require('../utils/errorHandlers');
 const Wishlists = require('../models/wishlists.model');
 const authMiddleware = require('../middlewares');
+const Wishlist = require('../models/wishlists.model');
 
 // router.authMiddleware();
 router
@@ -17,7 +18,7 @@ router
             res.status(200).json({ message: 'Your wishlists', result: returnedWishlists });
         } catch (error) {
             console.log('Error => ', error);
-            res.status(+error.code).json({
+            errorResponse(res, {
                 statusCode: +error.code,
                 message: error.message,
                 toast: error.toastStatus,
@@ -43,7 +44,7 @@ router
             await returnedReadlist.save();
         } catch (error) {
             console.error(error);
-            res.status(+error.code).json({
+            errorResponse(res, {
                 statusCode: +error.code,
                 message: error.message,
                 toast: error.toastStatus,
@@ -51,18 +52,32 @@ router
         }
     });
 
-router
-    .route('/:id')
-    .get(async (req, res) => {
-        const { id } = req.params;
-        try {
-            const returnedReadlist = await Wishlists.findOne({ _id: id });
-            if (!returnedReadlist) throw new CustomError('404', 'failed', "Readlist doesn't exist");
+router.param('wishlistId', async (req, res, next, wishlistId) => {
+    try {
+        console.log('wishlist id from router.param() middleware', wishlistId);
+        const returnedWishlist = await Wishlist.findOne({ _id: wishlistId });
+        if (!returnedWishlist) throw new CustomError('404', 'failed', 'Wishlist not found!');
 
-            res.status(200).json(returnedReadlist);
+        req.wishlist = returnedWishlist._doc;
+        next();
+    } catch (error) {
+        console.error(error);
+        errorResponse(res, {
+            statusCode: +error.code,
+            message: error.message,
+            toast: error.toastStatus,
+        });
+    }
+});
+
+router
+    .route('/:wishlistId')
+    .get(async (req, res) => {
+        try {
+            res.status(200).json({ success: true, wishlist: req.wishlist });
         } catch (error) {
             console.error(error);
-            res.status(+error.code).json({
+            errorResponse(res, {
                 statusCode: +error.code,
                 message: error.message,
                 toast: error.toastStatus,
@@ -70,13 +85,10 @@ router
         }
     })
     .post(async (req, res) => {
-        const { id } = req.params;
         try {
-            const returnedReadlist = await Wishlists.findOne({ _id: id });
-            if (!returnedReadlist) throw new CustomError('404', 'failed', "Readlist doesn't exist");
         } catch (error) {
             console.error(error);
-            res.status(+error.code).json({
+            errorResponse(res, {
                 statusCode: +error.code,
                 message: error.message,
                 toast: error.toastStatus,
