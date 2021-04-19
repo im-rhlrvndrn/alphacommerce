@@ -76,6 +76,9 @@ export const reducer = (state, { type, payload }) => {
             //     'currentUser',
             //     validUser.length === 0 ? 'guest' : validUser[0]._id
             // );
+            saveDataToLocalStorage('currentUser', {
+                ...payload,
+            });
             // * saveDataToLocalStorage('currentUser', cookie ? cookie : 'guest');
             // saveDataToLocalStorage('cart', [getDataFromLocalStorage('cart')]);
             // ! Make a transferData function to transfer all the Guest account data into a verified
@@ -85,11 +88,7 @@ export const reducer = (state, { type, payload }) => {
             return {
                 ...state,
                 currentUser: {
-                    _id: payload._id,
-                    email: payload.email,
-                    password: payload.password,
-                    full_name: payload.full_name,
-                    avatar: payload.avatar,
+                    ...payload,
                 },
             };
 

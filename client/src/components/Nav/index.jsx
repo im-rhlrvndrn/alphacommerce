@@ -14,6 +14,7 @@ import { CartIcon } from '../../react_icons/CartIcon';
 import { DarkModeIcon } from '../../react_icons/DarkModeIcon';
 import { WishListIcon } from '../../react_icons/WishListIcon';
 import { LightModeIcon } from '../../react_icons/LightModeIcon';
+import axios from '../../axios';
 
 export const Nav = () => {
     const [_, dataDispatch] = useDataLayer();
@@ -27,6 +28,15 @@ export const Nav = () => {
         // dataDispatch({ type: 'TRANSFER_GUEST_DATA_TO_USER', payload: { currentUser } });
         console.log('Re-render because of change in currentUser (NavComp)', currentUser);
     }, [currentUser]);
+
+    const logout = async () => {
+        try {
+            const response = await axios.get('/auth/logout');
+            if (response.data.success) authDispatch({ type: 'LOGOUT' });
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     return (
         <>
@@ -88,7 +98,7 @@ export const Nav = () => {
                                 )}
                                 {currentUser._id !== 'guestUser' && (
                                     <li
-                                        onClick={() => authDispatch({ type: 'LOGOUT' })}
+                                        onClick={logout}
                                         style={{
                                             borderBottom: `2px solid ${theme.light_background}`,
                                         }}

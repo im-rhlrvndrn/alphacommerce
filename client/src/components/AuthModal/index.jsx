@@ -13,7 +13,7 @@ import './authmodal.scss';
 export const AuthModal = ({ auth = 'signup', setAuthModal }) => {
     const { theme } = useTheme();
     const [_, authDispatch] = useAuth();
-    const [dataLayer, dataDispatch] = useDataLayer();
+    const [{ cart, wishlists }, dataDispatch] = useDataLayer();
     const [authState, setAuthState] = useState(auth);
     const [authData, setAuthData] = useState({});
 
@@ -32,7 +32,13 @@ export const AuthModal = ({ auth = 'signup', setAuthModal }) => {
                 console.log('Login Response: ', loginResponse);
                 authDispatch({
                     type: 'LOGIN',
-                    payload: loginResponse.data.data.userId,
+                    payload: {
+                        _id: loginResponse.data.data.user._id,
+                        email: loginResponse.data.data.user.email,
+                        password: loginResponse.data.data.user.password,
+                        full_name: loginResponse.data.data.user.full_name,
+                        avatar: loginResponse.data.data.user.avatar,
+                    },
                 });
             } else if (action === 'signup') {
                 const response = await axios.post('/auth/signup', {
@@ -53,7 +59,15 @@ export const AuthModal = ({ auth = 'signup', setAuthModal }) => {
                         password: response.data.data.password,
                     },
                 });
-                dataDispatch({ type: 'SETUP_NEW_USER', payload: { id: response.data.data._id } });
+                dataDispatch({
+                    type: 'SETUP_NEW_USER',
+                    payload: {
+                        _id: response.data.data._id,
+                        data: cart,
+                        user: response.data.data.user,
+                        wishlists: wishlists,
+                    },
+                });
             } else {
                 return setAuthModal((prevState) => ({
                     ...prevState,

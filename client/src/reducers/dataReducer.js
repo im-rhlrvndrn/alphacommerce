@@ -35,8 +35,8 @@ export const reducer = (state, { type, payload }) => {
 
     const eliminateDuplicates = (arraySet) =>
         arraySet.reduce((acc, curVal) => {
-            tempState[curVal.id] ? (tempState[curVal.id] += 1) : (tempState[curVal.id] = 1);
-            if (tempState[curVal.id] <= 1) return [...acc, curVal];
+            tempState[curVal._id] ? (tempState[curVal._id] += 1) : (tempState[curVal._id] = 1);
+            if (tempState[curVal._id] <= 1) return [...acc, curVal];
             return [...acc];
         }, []);
 
