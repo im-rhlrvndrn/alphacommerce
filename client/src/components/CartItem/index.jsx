@@ -1,6 +1,8 @@
+import axios from '../../axios';
 import { maxWords } from '../../utils/math_helpers';
 import { useTheme } from '../../context/ThemeProvider';
 import { useDataLayer } from '../../context/DataProvider';
+import { getSelectedVariantPrice } from '../../utils';
 
 // styles
 import './cartItem.scss';
@@ -8,24 +10,64 @@ import './cartItem.scss';
 // React components
 import { AddToCart } from '../Buttons';
 
-export const CartItem = ({ item: { _id, name, cover_image, quantity, price, totalPrice } }) => {
+export const CartItem = ({ item }) => {
+    const {
+        book: { _id, name, cover_image },
+        variant,
+        total,
+    } = item;
     const { theme } = useTheme();
-    const [data, dataDispatch] = useDataLayer();
+    const [{ cart }, dataDispatch] = useDataLayer();
 
-    const updateQuantity = (id, inc) => {
-        dataDispatch({ type: 'UPDATECARTITEM', payload: { id, inc } });
+    const removeFromCart = async (id) => {
+        if (cart._id === 'guest') {
+            const {
+                data: {
+                    success,
+                    data: { _id, variant, checkout },
+                    toast,
+                },
+            } = await axios.delete(`/carts/${cart._id}`, {
+                variant,
+                _id: id,
+                type: 'REMOVE_FROM_CART',
+                cart: cart._id === 'guest' ? cart : null,
+            });
+            if (success)
+                dataDispatch({
+                    type: 'REMOVEFROMCART',
+                    payload: {
+                        _id,
+                        variant,
+                        checkout: checkout,
+                    },
+                });
+        } else {
+            dataDispatch({
+                type: 'REMOVEFROMCART',
+                payload: {
+                    _id: id,
+                    variant,
+                    checkout: {
+                        subtotal: +cart.checkout.subtotal - +total,
+                        total: +cart.checkout.total - +total,
+                    },
+                },
+            });
+        }
     };
-    const removeFromCart = (id) => dataDispatch({ type: 'REMOVEFROMCART', payload: id });
 
     return (
         <div className='cartItem' style={{ color: theme.color }}>
             <img src={cover_image?.url} alt={name} />
             <p className='cartItem_name'>{maxWords(name, 30)}</p>
-            <p className='cartItem_price'>₹ {price}</p>
+            <p className='cartItem_price'>
+                ₹ {getSelectedVariantPrice(item.book.variants, variant.type)}
+            </p>
             <div className='quantity-container'>
-                <AddToCart item={{ _id, name, cover_image, quantity, price, totalPrice }} />
+                <AddToCart item={item?.book} variant={variant} />
             </div>
-            <p className='cartItem_total_price'>₹ {totalPrice}</p>
+            <p className='cartItem_total_price'>₹ {total}</p>
             <button
                 className='remove-item'
                 onClick={() => removeFromCart(_id)}

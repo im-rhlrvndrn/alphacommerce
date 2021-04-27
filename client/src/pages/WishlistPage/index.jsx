@@ -7,7 +7,7 @@ import { useDataLayer } from '../../context/DataProvider';
 // styles
 import './wishlistpage.scss';
 
-export const ReadlistPage = () => {
+export const WishlistPage = () => {
     const { theme } = useTheme();
     const history = useHistory();
     const [{ currentUser }] = useAuth();
@@ -32,7 +32,7 @@ export const ReadlistPage = () => {
                 id='wishlist-search'
                 placeholder='Search for wishlist by name'
             />
-            <h1>My wishlists</h1>
+            <div className='font-md font-weight-md'>My wishlists</div>
             <div className='wishlist-wrapper'>
                 {wish_lists?.map(({ _id, name, cover_image }) => (
                     <Link to={`/wishlists/${_id}`} key={_id} className='wishlist-item'>
@@ -42,7 +42,7 @@ export const ReadlistPage = () => {
                             style={{ backgroundColor: theme.light_background }}
                         >
                             <div className='name' style={{ color: theme.color }}>
-                                {name}
+                                {name.name}
                             </div>
                         </div>
                     </Link>

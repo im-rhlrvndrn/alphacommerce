@@ -99,7 +99,7 @@ export const reducer = (state, { type, payload }) => {
 
         case 'LOGOUT':
             saveDataToLocalStorage('currentUser', {
-                _id: 'guestUser',
+                _id: 'guest',
                 email: null,
                 password: null,
                 full_name: 'Guest User',
@@ -108,7 +108,7 @@ export const reducer = (state, { type, payload }) => {
             return {
                 ...state,
                 currentUser: {
-                    _id: 'guestUser',
+                    _id: 'guest',
                     email: null,
                     password: null,
                     full_name: 'Guest User',

@@ -7,7 +7,7 @@ import { useDataLayer } from '../../../context/DataProvider';
 
 // React components
 import { Modal } from '../../Modal';
-import { ReadlistModal } from '../../ReadlistModal';
+import { WishlistModal } from '../../WishlistModal';
 import { CartIcon } from '../../../react_icons/CartIcon';
 import { RightArrowIcon } from '../../../react_icons/RightArrowIcon';
 import { OutlinedWishListIcon } from '../../../react_icons/OutlinedWishListIcon';
@@ -19,21 +19,21 @@ export const CategoryListItem = ({ item }) => {
     const { theme } = useTheme();
     const [{ currentUser }] = useAuth();
     const [{ cart }, dataDispatch] = useDataLayer();
-    const { _id, name, cover_image, price, link, authors } = item;
+    const { _id, name, cover_image, variants, link, authors } = item;
     const [existsInCart, setExistsInCart] = useState(false);
-    const [readlistModal, setReadlistModal] = useState({ isActive: false });
+    const [wishlistModal, setWishlistModal] = useState({ isActive: false });
 
     useEffect(() => {
         // const userIndex = cart.findIndex((cartItem) => cartItem.userId === currentUser);
         setExistsInCart((prevState) =>
-            cart.data?.findIndex((productItem) => productItem._id === item._id) === -1
+            cart.data?.findIndex((productItem) => productItem.book._id === item._id) === -1
                 ? false
                 : true
         );
     }, [cart, currentUser._id]);
 
-    const addToCart = (item) => dataDispatch({ type: 'ADDTOCART', payload: item });
-    const removeFromCart = (id) => dataDispatch({ type: 'REMOVEFROMCART', payload: id });
+    const addToCart = (item) => dataDispatch({ type: 'ADD_TO_CART', payload: item });
+    const removeFromCart = (id) => dataDispatch({ type: 'REMOVE_FROM_CART', payload: id });
 
     return (
         <>
@@ -52,8 +52,8 @@ export const CategoryListItem = ({ item }) => {
                                       name,
                                       cover_image,
                                       quantity: 1,
-                                      price: price.value,
-                                      totalPrice: price.value,
+                                      price: variants[0].price,
+                                      totalPrice: variants[0].price,
                                   })
                         }
                     >
@@ -67,7 +67,7 @@ export const CategoryListItem = ({ item }) => {
                         className='bibliography-icon'
                         style={{ backgroundColor: theme.color }}
                         onClick={() =>
-                            setReadlistModal((prevState) => ({
+                            setWishlistModal((prevState) => ({
                                 ...prevState,
                                 isActive: !prevState.isActive,
                             }))
@@ -84,7 +84,7 @@ export const CategoryListItem = ({ item }) => {
                     <div class='info' style={{ color: theme.color }}>
                         <div class='font-weight-md'>{maxWords(name, 12)}</div>
                         <div class='font-xs opac-6'>By {maxWords(authors.join(', '), 12)}</div>
-                        <div class='font-md font-weight-md'>₹ {price.value}</div>
+                        <div class='font-md font-weight-md'>₹ {variants[0].price}</div>
                     </div>
                     <Link
                         // target='_blank'
@@ -96,11 +96,11 @@ export const CategoryListItem = ({ item }) => {
                     </Link>
                 </div>
             </div>
-            {readlistModal.isActive && (
-                <Modal setIsModalActive={setReadlistModal}>
-                    <ReadlistModal
-                        setIsModalActive={setReadlistModal}
-                        productIds={[{ _id, totalPrice: price.value }]}
+            {wishlistModal.isActive && (
+                <Modal setIsModalActive={setWishlistModal}>
+                    <WishlistModal
+                        setIsModalActive={setWishlistModal}
+                        productIds={[{ _id, totalPrice: variants[0].price }]}
                     />
                 </Modal>
             )}

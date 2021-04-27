@@ -8,12 +8,12 @@ import './categoryList.scss';
 // React components
 import { CategoryListItem } from './CategoryListitem';
 
-export const CategoryList = ({ products, genre }) => {
+export const CategoryList = ({ books, genre }) => {
     const { theme } = useTheme();
-    console.log(`products before slice(${genre}): `, products);
-    products = products.filter((item) => item.genre.includes(genre)).slice(0, 5);
+    console.log(`products before slice(${genre}): `, books);
+    books = books.filter((item) => item.genres.includes(genre)).slice(0, 5);
 
-    console.log(`products after slice(${genre}): `, products);
+    console.log(`products after slice(${genre}): `, books);
 
     // useEffect(() => {
     //     console.log('Re-render because of change in currentUser (CategoryListComp)', currentUser);
@@ -40,8 +40,8 @@ export const CategoryList = ({ products, genre }) => {
                 </div>
             )}
             <div className='category-list'>
-                {products?.map((productItem) => (
-                    <CategoryListItem key={productItem.id} item={productItem} />
+                {books?.map((productItem) => (
+                    <CategoryListItem key={productItem._id} item={productItem} />
                 ))}
             </div>
         </div>

@@ -1,16 +1,23 @@
-export const slugify = (inputValue) => inputValue.toString().split(' ').join('-');
-export const deSlugify = (inputValue) => inputValue.toString().split('-').join(' ');
+import { findIndex } from './array_helpers';
+
+export const slugify = (inputValue) => inputValue.toString().replace('-', '_').replace(' ', '-');
+export const deSlugify = (inputValue) => inputValue.toString().replace('-', ' ').replace('_', '-');
 export const generateSearchParams = (input) =>
     input
         .split('')
         .slice(1)
         .join('')
         .split('&')
-        .reduce((acc, cur, index, sourceArray) => {
+        .reduce((acc, cur) => {
             let temp = cur.split('=');
             acc[temp[0]] = temp[1];
             return { ...acc };
         }, {});
 
-export { alreadyExists } from './array_helpers';
+export const getSelectedVariantPrice = (variantArray, variantType = 'paperback') =>
+    variantArray[findIndex(variantArray, 'type', variantType)].price;
+
+export { alreadyExists, findIndex } from './array_helpers';
 export { getFilteredData, getSortedData } from './filter';
+export { increment, incrementBy, decrement, decrementBy, maxWords } from './math_helpers';
+export { calculateSubTotal, calculateTax, calculateTotal, fixedTo } from './cart_helpers';

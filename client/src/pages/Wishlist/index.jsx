@@ -3,9 +3,9 @@ import { useAuth } from '../../context/AuthProvider';
 import { useHistory, useParams } from 'react-router';
 import { useTheme } from '../../context/ThemeProvider';
 import { useDataLayer } from '../../context/DataProvider';
-import { ReadlistItem } from '../../components/ReadlistItem';
+import { ReadlistItem } from '../../components/WishlistItem';
 
-export const Readlist = () => {
+export const Wishlist = () => {
     const { theme } = useTheme();
     const history = useHistory();
     let userIndex, wishListIndex;
@@ -18,7 +18,7 @@ export const Readlist = () => {
         return products?.map((productItem) =>
             wishList?.data?.map(
                 (wishListItem) =>
-                    wishListItem._id === productItem._id && <ReadlistItem item={productItem} />
+                    wishListItem.book._id === productItem._id && <ReadlistItem item={productItem} />
             )
         );
     };
@@ -45,7 +45,12 @@ export const Readlist = () => {
         <>
             <div className='cart-wrapper' style={{ backgroundColor: theme.dark_background }}>
                 <div className='cart'>
-                    <h1 style={{ color: theme.color }}>{wishList?.name?.text}</h1>
+                    <div
+                        className='font-md uppercase font-weight-md'
+                        style={{ color: theme.color }}
+                    >
+                        {wishList?.name?.name}
+                    </div>
                     <div className='cart-items' style={{ color: theme.color }}>
                         {renderReadListItems()}
                     </div>

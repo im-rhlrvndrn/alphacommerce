@@ -14,7 +14,7 @@ export const CartCheckout = ({ setReadlistModal, cart }) => {
             className='cart-checkout p-2 h-max'
             style={{ backgroundColor: theme.light_background, color: theme.color }}
         >
-            <h2 className='font-lg margin-res'>Order summary</h2>
+            <h2 className='font-md margin-reset'>Price summary</h2>
             <div
                 className='checkout-group pt-1 pb-1'
                 style={{ borderBottom: `2px solid ${theme.dark_background}` }}

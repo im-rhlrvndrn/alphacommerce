@@ -5,7 +5,7 @@ export const CartItems = ({ cart }) => {
     return (
         <>
             {cart.map((cartItem) => (
-                <CartItem key={cartItem.id} item={cartItem} />
+                <CartItem key={cartItem.book._id} item={cartItem} />
             ))}
         </>
     );

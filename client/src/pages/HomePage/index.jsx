@@ -7,7 +7,7 @@ import { CategoryList } from '../../components/CategoryList';
 
 export const HomePage = () => {
     const { theme } = useTheme();
-    const [{ products }] = useDataLayer();
+    const [{ books }] = useDataLayer();
 
     return (
         <>
@@ -30,9 +30,9 @@ export const HomePage = () => {
                     color: theme.color,
                 }}
             >
-                <CategoryList genre='web development' products={products} />
-                <CategoryList genre='horror' products={products} />
-                <CategoryList genre='business' products={products} />
+                <CategoryList genre='web development' books={books} />
+                <CategoryList genre='horror' books={books} />
+                <CategoryList genre='business' books={books} />
             </section>
         </>
     );

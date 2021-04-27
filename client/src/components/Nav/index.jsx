@@ -32,7 +32,20 @@ export const Nav = () => {
     const logout = async () => {
         try {
             const response = await axios.get('/auth/logout');
-            if (response.data.success) authDispatch({ type: 'LOGOUT' });
+            if (response.data.success) {
+                authDispatch({ type: 'LOGOUT' });
+                dataDispatch({
+                    type: 'SET_CART',
+                    payload: {
+                        cart: {
+                            _id: 'guest',
+                            user: 'guest',
+                            data: [],
+                            checkout: { subtotal: 0, total: 0 },
+                        },
+                    },
+                });
+            }
         } catch (error) {
             console.log(error);
         }
@@ -44,7 +57,7 @@ export const Nav = () => {
                 <div className='nav'>
                     <h1 className='font-lg logo margin-reset' style={{ marginRight: '2rem' }}>
                         <Link to='/' style={{ color: theme.color }}>
-                            Bibliophile
+                            Bibliophile/AlphaReads
                         </Link>
                     </h1>
                     <input
@@ -64,7 +77,7 @@ export const Nav = () => {
                                     color: theme.color,
                                 }}
                             >
-                                {currentUser._id === 'guestUser' && (
+                                {currentUser._id === 'guest' && (
                                     <>
                                         <li
                                             onClick={() =>
@@ -96,7 +109,7 @@ export const Nav = () => {
                                         </li>
                                     </>
                                 )}
-                                {currentUser._id !== 'guestUser' && (
+                                {currentUser._id !== 'guest' && (
                                     <li
                                         onClick={logout}
                                         style={{

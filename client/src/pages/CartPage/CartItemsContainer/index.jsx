@@ -10,9 +10,9 @@ export const CartItemsContainer = ({ cart }) => {
 
     return (
         <div className='cart'>
-            <h1 className='font-xl' style={{ color: theme.color }}>
-                Items in my cart ({cart.length})
-            </h1>
+            <div className='font-md cart-heading' style={{ color: theme.color }}>
+                My bag <span className='font-weight-s'>{cart.length} item(s)</span>
+            </div>
             {cart.length === 0 ? (
                 <p style={{ color: theme.color }}>No items in cart</p>
             ) : (

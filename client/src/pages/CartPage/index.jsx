@@ -10,15 +10,15 @@ import './cartpage.scss';
 // React components
 import { Modal } from '../../components/Modal';
 import { CartItemsContainer } from './CartItemsContainer';
-import { ReadlistModal } from '../../components/ReadlistModal';
+import { WishlistModal } from '../../components/WishlistModal';
 import { CartCheckout } from './CartCheckout';
 
 export const CartPage = () => {
     const { theme } = useTheme();
     const history = useHistory();
     const [{ currentUser }] = useAuth();
-    const [{ cart, read_list }, dataDispatch] = useDataLayer();
-    const [readlistModal, setReadlistModal] = useState({ isActive: false });
+    const [{ cart }, dataDispatch] = useDataLayer();
+    const [wishlistModal, setWishlistModal] = useState({ isActive: false });
     const [userCart, setUserCart] = useState([]);
 
     // Determining the cart values based on authentication
@@ -37,12 +37,12 @@ export const CartPage = () => {
         <>
             <div className='cart-wrapper' style={{ backgroundColor: theme.dark_background }}>
                 <CartItemsContainer cart={userCart} />
-                <CartCheckout cart={userCart} setReadlistModal={setReadlistModal} />
+                <CartCheckout cart={userCart} setWishlistModal={setWishlistModal} />
             </div>
-            {readlistModal.isActive && (
-                <Modal setIsModalActive={setReadlistModal}>
-                    <ReadlistModal
-                        setIsModalActive={setReadlistModal}
+            {wishlistModal.isActive && (
+                <Modal setIsModalActive={setWishlistModal}>
+                    <WishlistModal
+                        setIsModalActive={setWishlistModal}
                         productIds={userCart?.map((item) => ({
                             id: item.id,
                             totalPrice: item.totalPrice,

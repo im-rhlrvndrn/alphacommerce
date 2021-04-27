@@ -1,3 +1,5 @@
+@import '../../mixins.scss';
+
 .product-page {
     width: 100%;
     height: auto;
@@ -28,6 +30,18 @@
             h1 {
                 margin-bottom: 0.5rem;
                 font-size: 3rem;
+            }
+
+            .variant_container {
+                margin-bottom: 1rem;
+
+                .variant {
+                    cursor: pointer;
+
+                    &.active {
+                        background-color: $primary;
+                    }
+                }
             }
 
             .price {

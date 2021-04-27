@@ -8,6 +8,11 @@
     .cart {
         flex: 0.8;
 
+        &-heading {
+            font-weight: 600;
+            text-transform: none;
+        }
+
         .cart-items {
             margin-top: 4rem;
             padding-right: 2rem;
@@ -49,12 +54,7 @@
             &-row {
                 .heading {
                     opacity: 0.4;
-                    font-weight: 600;
                     text-transform: uppercase;
-                }
-
-                .price {
-                    font-weight: 600;
                 }
             }
         }

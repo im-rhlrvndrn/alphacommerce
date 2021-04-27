@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTheme } from '../../../context/ThemeProvider';
 import { useDataLayer } from '../../../context/DataProvider';
 
 export const Radio = ({ data, dispatchType }) => {
     const { theme } = useTheme();
-    const [_, dataDispatch] = useDataLayer();
+    const [{ priceFilter }, dataDispatch] = useDataLayer();
     const [radioButtons, setRadioButtons] = useState(data);
 
     const handleChange = (id, name) => {
@@ -17,6 +17,16 @@ export const Radio = ({ data, dispatchType }) => {
         );
         dataDispatch({ type: 'SORT_BY_PRICE', payload: name });
     };
+
+    useEffect(() => {
+        setRadioButtons((prevState) =>
+            prevState.map((item) =>
+                item.name === priceFilter
+                    ? { ...item, isChecked: !item.isChecked }
+                    : { ...item, isChecked: false }
+            )
+        );
+    }, []);
 
     return (
         <>

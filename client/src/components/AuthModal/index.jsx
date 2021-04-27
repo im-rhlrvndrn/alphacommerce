@@ -12,7 +12,7 @@ import './authmodal.scss';
 
 export const AuthModal = ({ auth = 'signup', setAuthModal }) => {
     const { theme } = useTheme();
-    const [_, authDispatch] = useAuth();
+    const [{ currentUser }, authDispatch] = useAuth();
     const [{ cart, wishlists }, dataDispatch] = useDataLayer();
     const [authState, setAuthState] = useState(auth);
     const [authData, setAuthData] = useState({});
@@ -24,50 +24,78 @@ export const AuthModal = ({ auth = 'signup', setAuthModal }) => {
         try {
             event.preventDefault();
             if (action === 'login') {
-                const loginResponse = await axios.post('/auth/login', {
+                const {
+                    data: {
+                        success,
+                        data: { token, user },
+                    },
+                } = await axios.post('/auth/login', {
                     email: authData.auth_email,
                     password: authData.auth_password,
                 });
 
-                console.log('Login Response: ', loginResponse);
-                authDispatch({
-                    type: 'LOGIN',
-                    payload: {
-                        _id: loginResponse.data.data.user._id,
-                        email: loginResponse.data.data.user.email,
-                        password: loginResponse.data.data.user.password,
-                        full_name: loginResponse.data.data.user.full_name,
-                        avatar: loginResponse.data.data.user.avatar,
-                    },
-                });
+                console.log('Login Response: ', { token, user });
+                if (success) {
+                    authDispatch({
+                        type: 'LOGIN',
+                        payload: {
+                            _id: user._id,
+                            email: user.email,
+                            password: user.password,
+                            full_name: user.full_name,
+                            avatar: user.avatar,
+                        },
+                    });
+                    // ! Make another API call to update the cart details
+                    const {
+                        data: { success, data, toast },
+                    } = await axios.post(`carts/${user.cart._id}`, {
+                        multi: true,
+                        data: [...cart.data],
+                        type: 'ADD_TO_CART',
+                        cart: null,
+                    });
+                    if (success)
+                        dataDispatch({
+                            type: 'SET_CART',
+                            payload: {
+                                cart: { ...user.cart, data: data.data, checkout: data.checkout },
+                            },
+                        });
+                }
             } else if (action === 'signup') {
-                const response = await axios.post('/auth/signup', {
+                const {
+                    data: { success, data },
+                } = await axios.post('/auth/signup', {
                     full_name: authData.auth_fullname,
                     email: authData.auth_email,
                     password: authData.auth_password,
                     avatar: {},
                 });
 
-                console.log('Signup data: ', response);
-                authDispatch({
-                    type: 'SIGNUP',
-                    payload: {
-                        id: response.data.data._id,
-                        email: response.data.data.email,
-                        full_name: response.data.data.full_name,
-                        username: response.data.data.username,
-                        password: response.data.data.password,
-                    },
-                });
-                dataDispatch({
-                    type: 'SETUP_NEW_USER',
-                    payload: {
-                        _id: response.data.data._id,
-                        data: cart,
-                        user: response.data.data.user,
-                        wishlists: wishlists,
-                    },
-                });
+                console.log('Signup data: ', { success, data });
+                if (success) {
+                    authDispatch({
+                        type: 'SIGNUP',
+                        payload: {
+                            id: data._id,
+                            email: data.email,
+                            full_name: data.full_name,
+                            username: data.username,
+                            password: data.password,
+                        },
+                    });
+                    dataDispatch({ type: 'SET_CART', payload: { cart: data.cart } });
+                }
+                // dataDispatch({
+                //     type: 'SETUP_NEW_USER',
+                //     payload: {
+                //         _id: response.data.data._id,
+                //         data: cart,
+                //         user: response.data.data.user,
+                //         wishlists: wishlists,
+                //     },
+                // });
             } else {
                 return setAuthModal((prevState) => ({
                     ...prevState,

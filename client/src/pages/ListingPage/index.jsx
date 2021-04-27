@@ -14,18 +14,19 @@ import { ListingProducts } from '../../components/Listing';
 export const ListingPage = () => {
     const { theme } = useTheme();
     let { state, search } = useLocation();
-    const [{ products, genreFilters, authorFilters, priceFilter }, dataDispatch] = useDataLayer();
-    let sortedProducts = getSortedData(products, priceFilter);
+    const [{ books, genreFilters, authorFilters, priceFilter }, dataDispatch] = useDataLayer();
+    let sortedProducts = getSortedData(books, priceFilter);
     let filteredProducts = getFilteredData(sortedProducts, [
-        { data: genreFilters, type: 'genre' },
+        { data: genreFilters, type: 'genres' },
         { data: authorFilters, type: 'authors' },
     ]);
 
     useEffect(() => {}, [genreFilters, authorFilters, priceFilter]);
 
     useEffect(() => {
+        console.log('---- Listing page is mounted for the first time ----');
         search = generateSearchParams(search);
-        if (search.genre) {
+        if (search.genre && !genreFilters.includes(deSlugify(search.genre))) {
             dataDispatch({ type: 'FILTER_BY_GENRE', payload: deSlugify(search.genre) });
         }
 
@@ -34,6 +35,8 @@ export const ListingPage = () => {
             left: 0,
             behavior: 'smooth',
         });
+
+        return () => console.log('---- Listing page is unmounted ----');
     }, []);
 
     // console.log('filteredProducts', filteredProducts);

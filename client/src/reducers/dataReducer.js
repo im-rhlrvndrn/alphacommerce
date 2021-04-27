@@ -1,14 +1,22 @@
 import { v4 } from 'uuid';
 // import data from '../data.json';
 import { alreadyExists } from '../utils';
-import { productData as data } from '../data.js';
-import { decrement, increment } from '../utils/math_helpers';
+// import { productData as data } from '../data.js';
+import {
+    decrement,
+    decrementBy,
+    increment,
+    incrementBy,
+    calculateSubTotal,
+    calculateTax,
+    calculateTotal,
+    fixedTo,
+} from '../utils';
 import { getDataFromLocalStorage, saveDataToLocalStorage } from '../hooks/useLocalStorage';
-import { calculateSubTotal, calculateTax, calculateTotal, fixedTo } from '../utils/cart_helpers';
 
-const productData = data?.map((item) => ({ ...item, _id: v4() }));
-const productsFromLocalStorage = getDataFromLocalStorage('products') || productData;
-if (!getDataFromLocalStorage('products')) saveDataToLocalStorage('products', productData);
+// const productData = data?.map((item) => ({ ...item, _id: v4() }));
+const booksFromLocalStorage = getDataFromLocalStorage('books');
+// if (!getDataFromLocalStorage('books')) saveDataToLocalStorage('books', productData);
 
 // ! Shift the entire codebase to adopt the new cart and read_list values from authContext
 export const initialState = {
@@ -17,11 +25,12 @@ export const initialState = {
     priceFilter: '',
     genreFilters: [],
     authorFilters: [],
-    products: productsFromLocalStorage || [],
+    books: booksFromLocalStorage || [],
     cart: getDataFromLocalStorage('cart') || {
         _id: 'guestCart',
         user: 'userId',
         data: [],
+        checkout: { subtotal: 0, total: 0 },
     },
     wishlists: getDataFromLocalStorage('wishlists') || [],
 };
@@ -33,22 +42,30 @@ export const reducer = (state, { type, payload }) => {
         updatedWishlist = [],
         tempState = {};
 
-    const eliminateDuplicates = (arraySet) =>
+    const eliminateDuplicatesById = (arraySet) =>
         arraySet.reduce((acc, curVal) => {
             tempState[curVal._id] ? (tempState[curVal._id] += 1) : (tempState[curVal._id] = 1);
             if (tempState[curVal._id] <= 1) return [...acc, curVal];
             return [...acc];
         }, []);
 
+    const eliminateDuplicates = (arraySet) =>
+        arraySet.reduce((acc, curVal) => {
+            tempState[curVal] ? (tempState[curVal] += 1) : (tempState[curVal] = 1);
+            if (tempState[curVal] <= 1) return [...acc, curVal];
+            return [...acc];
+        }, []);
+
     switch (type) {
         case 'SET_GENRES':
-            return { ...state, genres: [...state.genres, ...payload] };
-        case 'SET_AUTHORS':
-            return { ...state, authors: [...state.authors, ...payload] };
+            return { ...state, genres: eliminateDuplicates([...state.genres, ...payload]) };
 
-        case 'UPDATEPRODUCTS':
-            saveDataToLocalStorage('products', payload);
-            return { ...state, products: [...state.products, ...payload] };
+        case 'SET_AUTHORS':
+            return { ...state, authors: eliminateDuplicates([...state.authors, ...payload]) };
+
+        case 'STOREBOOKS':
+            saveDataToLocalStorage('books', payload);
+            return { ...state, books: [...state.books, ...payload] };
 
         case 'SETUP_NEW_USER':
             return {
@@ -56,14 +73,19 @@ export const reducer = (state, { type, payload }) => {
                 cart: {
                     _id: payload._id,
                     user: payload.user,
-                    data: eliminateDuplicates(payload.data),
+                    data: eliminateDuplicatesById(payload.data),
+                    checkout: payload.checkout,
                 },
                 // ! In wishlists, the wishlists in Guest Account will be created on the DB and added to the user's wishlist array
                 wishlists: payload.wishlists,
             };
 
         case 'FILTER_BY_GENRE':
-            console.log('alreadyExists: ', alreadyExists(state.genreFilters, [...payload]));
+            console.log('alreadyExists: ', {
+                value: alreadyExists(state.genreFilters, payload),
+                typeof: typeof alreadyExists(state.genreFilters, payload),
+                genreFilters: state.genreFilters,
+            });
             return {
                 ...state,
                 genreFilters: alreadyExists(state.genreFilters, payload)
@@ -84,46 +106,30 @@ export const reducer = (state, { type, payload }) => {
                     : [...state.authorFilters, payload],
             };
 
-        // case 'TRANSFER_GUEST_DATA_TO_USER':
-        //     const guestUserData = {
-        //         cart: state.cart[state.cart.findIndex((item) => item.userId === 'guest')].data,
-        //         wishlists:
-        //             state.wishlists[state.wishlists.findIndex((item) => item.userId === 'guest')]
-        //                 .data,
-        //     };
-        //     return {
-        //         ...state,
-        //         cart: state.cart.map((cartItem) =>
-        //             cartItem.userId === payload.currentUser
-        //                 ? {
-        //                       ...cartItem,
-        //                       data: eliminateDuplicates(cartItem.data.concat(guestUserData.cart)),
-        //                   }
-        //                 : cartItem.userId === 'guest'
-        //                 ? { ...cartItem, data: [] }
-        //                 : cartItem
-        //         ),
-        //         wishlists: state.wishlists.map((wishlistItem) =>
-        //             wishlistItem.userId === payload.currentUser
-        //                 ? {
-        //                       ...wishlistItem,
-        //                       data: eliminateDuplicates(
-        //                           wishlistItem.data.concat(guestUserData.wishlists)
-        //                       ),
-        //                   }
-        //                 : wishlistItem.userId === 'guest'
-        //                 ? { ...wishlistItem, data: [] }
-        //                 : wishlistItem
-        //         ),
-        //     };
+        // case 'TRANSFER_DATA':
 
-        case 'ADDTOCART':
+        //     break;
+
+        case 'SET_CART':
+            const { cart } = payload;
+            updatedCart = {
+                _id: cart._id,
+                user: cart.user,
+                data: cart.data,
+                checkout: cart.checkout,
+            };
+
+            saveDataToLocalStorage('cart', updatedCart);
+            return {
+                ...state,
+                cart: updatedCart,
+            };
+
+        case 'ADD_TO_CART':
             updatedCart = {
                 ...state.cart,
-                data:
-                    state.cart.data.findIndex((dataItem) => dataItem._id === payload._id) === -1
-                        ? [...state.cart.data, payload]
-                        : state.cart.data,
+                data: [...state.cart.data, ...payload.data],
+                checkout: payload.checkout,
             };
 
             saveDataToLocalStorage('cart', updatedCart);
@@ -132,53 +138,57 @@ export const reducer = (state, { type, payload }) => {
                 cart: { ...updatedCart },
             };
 
-        case 'UPDATECARTITEM':
+        case 'UPDATE_CART_ITEM':
             updatedCart = {
                 ...state.cart,
-                data: state.cart.data.map((data) =>
-                    data._id === payload._id
-                        ? {
-                              ...data,
-                              quantity: payload.inc
-                                  ? increment(data.quantity)
-                                  : decrement(data.quantity),
-                              totalPrice:
-                                  data.price *
-                                  (payload.inc
-                                      ? increment(data.quantity)
-                                      : decrement(data.quantity)),
-                          }
-                        : data
+                data: state.cart.data.map((item) =>
+                    item.book._id === payload._id &&
+                    item.variant.type === payload.updatedItem.variant.type
+                        ? payload.updatedItem
+                        : item
                 ),
+                checkout: payload.checkout,
             };
 
             saveDataToLocalStorage('cart', updatedCart);
             return {
                 ...state,
-                cart: { ...updatedCart },
+                cart: updatedCart,
             };
 
-        case 'REMOVEFROMCART':
+        case 'REMOVE_FROM_CART':
             updatedCart = {
                 ...state.cart,
-                data: state.cart.data.filter((data) => data._id !== payload),
+                data: state.cart.data.filter(
+                    (dataItem) =>
+                        dataItem.book._id !== payload._id ||
+                        (dataItem.book._id === payload._id &&
+                            dataItem.variant.type !== payload.variant.type)
+                ),
+                checkout: payload.checkout,
             };
 
             saveDataToLocalStorage('cart', updatedCart);
             return { ...state, cart: { ...updatedCart } };
 
-        case 'CREATEWISHLIST':
-            updatedWishlist =
-                state.wishlists.findIndex(
-                    (wishlist) => wishlist._id === payload._id || wishlist.name === payload.name
-                ) === -1
-                    ? [...state.wishlists, payload]
-                    : state.wishlists;
+        case 'SET_WISHLISTS': {
+            const { wishlists } = payload;
+            updatedWishlist = eliminateDuplicatesById([...state.wishlists, ...wishlists]);
+
+            saveDataToLocalStorage('wishlists', updatedWishlist);
+            return {
+                ...state,
+                wishlists: updatedWishlist,
+            };
+        }
+
+        case 'CREATE_WISHLIST':
+            updatedWishlist = [...state.wishlists, ...payload];
 
             saveDataToLocalStorage('wishlists', updatedWishlist);
             return { ...state, wishlists: updatedWishlist };
 
-        case 'DELETEWISHLIST':
+        case 'DELETE_WISHLIST':
             updatedWishlist = state.wishlists.map((wishlistItem) =>
                 wishlistItem.userId === currentUser
                     ? {
@@ -194,27 +204,19 @@ export const reducer = (state, { type, payload }) => {
                 wishlists: updatedWishlist,
             };
 
-        case 'ADDTOWISHLIST':
-            let tempState = {};
-            // let readList = state.read_list.find((item) => item.id === payload.readlist.id);
-            const noDuplicateProducts = payload.data.reduce((acc, curVal) => {
-                tempState[curVal._id] ? (tempState[curVal._id] += 1) : (tempState[curVal._id] = 1);
-                if (tempState[curVal._id] <= 1) return [...acc, curVal];
-                return [...acc];
-            }, []);
-
+        case 'ADD_TO_WISHLIST':
             updatedWishlist = state.wishlists.map((wishlist) =>
                 wishlist._id === payload._id
                     ? {
                           ...wishlist,
-                          data: noDuplicateProducts,
-                          estimated_price: fixedTo(
-                              calculateTotal(
-                                  calculateSubTotal(noDuplicateProducts),
-                                  calculateTax(calculateSubTotal(noDuplicateProducts))
-                              ),
-                              2
-                          ),
+                          data: eliminateDuplicatesById([...wishlist.data, ...payload.data]),
+                          //   estimated_price: fixedTo(
+                          //       calculateTotal(
+                          //           calculateSubTotal(noDuplicateProducts),
+                          //           calculateTax(calculateSubTotal(noDuplicateProducts))
+                          //       ),
+                          //       2
+                          //   ),
                       }
                     : wishlist
             );
@@ -225,7 +227,8 @@ export const reducer = (state, { type, payload }) => {
                 wishlists: updatedWishlist,
             };
 
-        case 'REMOVEFROMWISHLIST':
+        // ! update the entire function
+        case 'REMOVE_FROM_WISHLIST':
             updatedWishlist = state.wishlists.map((wishlistItem) =>
                 wishlistItem.userId === currentUser
                     ? {
@@ -234,7 +237,7 @@ export const reducer = (state, { type, payload }) => {
                               data.id === payload.readlistId
                                   ? {
                                         ...data,
-                                        products: data.products.filter(
+                                        books: data.books.filter(
                                             (item) => item.id !== payload.productId
                                         ),
                                     }
@@ -254,3 +257,36 @@ export const reducer = (state, { type, payload }) => {
             return state;
     }
 };
+
+// case 'TRANSFER_GUEST_DATA_TO_USER':
+//     const guestUserData = {
+//         cart: state.cart[state.cart.findIndex((item) => item.userId === 'guest')].data,
+//         wishlists:
+//             state.wishlists[state.wishlists.findIndex((item) => item.userId === 'guest')]
+//                 .data,
+//     };
+//     return {
+//         ...state,
+//         cart: state.cart.map((cartItem) =>
+//             cartItem.userId === payload.currentUser
+//                 ? {
+//                       ...cartItem,
+//                       data: eliminateDuplicatesById(cartItem.data.concat(guestUserData.cart)),
+//                   }
+//                 : cartItem.userId === 'guest'
+//                 ? { ...cartItem, data: [] }
+//                 : cartItem
+//         ),
+//         wishlists: state.wishlists.map((wishlistItem) =>
+//             wishlistItem.userId === payload.currentUser
+//                 ? {
+//                       ...wishlistItem,
+//                       data: eliminateDuplicatesById(
+//                           wishlistItem.data.concat(guestUserData.wishlists)
+//                       ),
+//                   }
+//                 : wishlistItem.userId === 'guest'
+//                 ? { ...wishlistItem, data: [] }
+//                 : wishlistItem
+//         ),
+//     };

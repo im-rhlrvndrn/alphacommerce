@@ -45,12 +45,20 @@ export const Filter = () => {
         switch (key) {
             case 'Authors':
                 return authors?.map((author) => (
-                    <Checkbox key={author.id} dispatchType='FILTER_BY_AUTHOR' data={author} />
+                    <Checkbox
+                        key={author.id}
+                        dispatchType='FILTER_BY_AUTHOR'
+                        data={{ name: author }}
+                    />
                 ));
 
             case 'Genres':
                 return genres?.map((genre) => (
-                    <Checkbox key={genre.id} dispatchType='FILTER_BY_GENRE' data={genre} />
+                    <Checkbox
+                        key={genre.id}
+                        dispatchType='FILTER_BY_GENRE'
+                        data={{ name: genre }}
+                    />
                 ));
 
             case 'Price':
