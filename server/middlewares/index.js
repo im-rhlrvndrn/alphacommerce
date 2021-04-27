@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const CustomError = require('../utils/errorHandlers');
+const { CustomError, errorResponse } = require('../utils/errorHandlers');
 
 module.exports = async (req, res, next) => {
     try {
@@ -8,12 +8,12 @@ module.exports = async (req, res, next) => {
 
         // Checks if the available token is valid
         const verified = jwt.verify(token, process.env.TOKEN_SECRET);
-        req.user = verified;
+        req.auth = verified;
         next();
     } catch (error) {
         console.error(error);
-        res.status(+error.code).json({
-            statusCode: +error.code,
+        errorResponse(res, {
+            code: +error.code,
             message: error.message,
             toast: error.toastStatus,
         });

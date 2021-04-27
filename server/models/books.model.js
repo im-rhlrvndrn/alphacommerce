@@ -62,24 +62,15 @@ const bookSchema = new Schema(
             {
                 type: {
                     type: String,
-                    enum: ['ebook', 'hardcover', 'paperback'],
+                    enum: {
+                        values: ['ebook', 'hardcover', 'paperback'],
+                        message: 'Variant type can only be ebook, hardcover, or paperback',
+                    },
                     required: [true, 'Variant type is a required field'],
                 },
-                price: { type: Number, required: true, default: 0 },
-            },
-            {
-                type: {
-                    type: String,
-                    enum: ['ebook', 'hardcover', 'paperback'],
-                    required: [true, 'Variant type is a required field'],
-                },
-                price: { type: Number, required: true, default: 0 },
-            },
-            {
-                type: {
-                    type: String,
-                    enum: ['ebook', 'hardcover', 'paperback'],
-                    required: [true, 'Variant type is a required field'],
+                stock_count: {
+                    type: Number,
+                    required: [true, 'Please enter the stock_count of the item'],
                 },
                 price: { type: Number, required: true, default: 0 },
             },

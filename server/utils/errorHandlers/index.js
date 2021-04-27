@@ -1,5 +1,5 @@
 class CustomError extends Error {
-    constructor(code = '400', toastStatus = 'success', ...params) {
+    constructor(code = '500', toastStatus = 'failed', ...params) {
         // Pass remaining arguments (including vendor specific ones) to parent constructor
         super(...params);
 
@@ -28,4 +28,24 @@ const errorResponse = (
     });
 };
 
-module.exports = { CustomError, errorResponse };
+const successResponse = (
+    res,
+    options = {
+        status: 200,
+        success: true,
+        data: {},
+        toast: { status: 'success', message: 'Successful operation' },
+    }
+) => {
+    const { status, success, data, toast } = options;
+    return res.status(status).json({
+        success,
+        data,
+        toast,
+    });
+};
+
+const summation = (arraySet, propertyName) =>
+    arraySet.reduce((acc, curVal) => acc + curVal[propertyName], 0);
+
+module.exports = { CustomError, errorResponse, successResponse, summation };

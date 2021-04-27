@@ -33,6 +33,7 @@ router
     .route('/:bookId')
     .get(async (req, res) => {
         try {
+            console.log('Book entry => ', req.book._doc);
             res.status(200).json({ success: true, book: { ...req.book._doc } });
         } catch (error) {
             console.error(error);

@@ -5,6 +5,8 @@ const mongoose = require('mongoose');
 // const verifyToken = require('./middlewares');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/auth.router');
+const cartRoutes = require('./routes/carts.router');
+const userRoutes = require('./routes/users.router');
 const bookRoutes = require('./routes/books.router');
 const genresRoutes = require('./routes/genres.router');
 const wishlistRoutes = require('./routes/wishlists.router');
@@ -22,6 +24,8 @@ app.use(cookieParser());
 // });
 app.use('/auth', authRoutes);
 app.use('/books', bookRoutes);
+app.use('/carts', cartRoutes);
+app.use('/users', userRoutes);
 app.use('/genres', genresRoutes);
 app.use('/wishlists', wishlistRoutes);
 app.get('/', (req, res) => {

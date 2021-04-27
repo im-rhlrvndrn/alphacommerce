@@ -12,7 +12,19 @@ router.post('/login', async (req, res) => {
         // Check if email exists
         const user = await Users.findOne({
             email: email,
-        });
+        })
+            .populate({
+                path: 'cart',
+                populate: {
+                    path: 'data.book',
+                },
+            })
+            .populate({
+                path: 'wishlists',
+                populate: {
+                    path: 'data',
+                },
+            });
         if (!user) throw new CustomError('401', 'failed', 'Invalid credentials');
 
         // Check if password is correct
@@ -43,7 +55,19 @@ router.post('/signup', async (req, res) => {
         // Check if email exists
         const user = await Users.findOne({
             email: email,
-        });
+        })
+            .populate({
+                path: 'cart',
+                populate: {
+                    path: 'data.book',
+                },
+            })
+            .populate({
+                path: 'wishlists',
+                populate: {
+                    path: 'data',
+                },
+            });
         if (user)
             throw new CustomError(
                 '401',
