@@ -1,6 +1,41 @@
 const router = require('express').Router();
 const Carts = require('../models/carts.model');
-const { getVariantPrice, errorResponse, CustomError, summation } = require('../utils');
+const {
+    getVariantPrice,
+    errorResponse,
+    CustomError,
+    summation,
+    successResponse,
+} = require('../utils');
+
+router.route('/').post(async (req, res) => {
+    const { body, cookies } = req;
+    try {
+        const { select, populate } = body;
+        const returnedCart = await Carts.findOne({ user: cookies.userId })
+            .select(select || [])
+            .populate(populate || '');
+
+        return successResponse(res, {
+            status: 200,
+            success: true,
+            data: {
+                cart: returnedCart,
+            },
+            toast: {
+                status: 'success',
+                message: 'Successfully fetched cart information',
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        errorResponse(res, {
+            code: 500,
+            message: 'Something went wrong on the server',
+            toast: 'failed',
+        });
+    }
+});
 
 router.param('cartId', async (req, res, next, cartId) => {
     try {

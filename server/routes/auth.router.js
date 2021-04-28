@@ -33,8 +33,8 @@ router.post('/login', async (req, res) => {
 
         // Create and assign a token
         const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET /*{ expiresIn: "24h" }*/);
-        res.cookie('token', token, { maxAge: 900000, path: '/', httpOnly: true });
-        res.cookie('userId', user._id.toString(), { maxAge: 900000, path: '/' });
+        res.cookie('token', token, { path: '/', httpOnly: true });
+        res.cookie('userId', user._id.toString(), { path: '/' });
 
         return res
             .status(200)

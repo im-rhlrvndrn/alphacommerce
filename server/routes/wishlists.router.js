@@ -59,139 +59,194 @@ router
     });
     */
 
-router.route('/').post(async (req, res) => {
-    const { wishlist, body } = req;
-    try {
-        const { type } = body;
+router
+    .route('/')
+    .get(async (req, res) => {
+        try {
+            // ! req.auth will be injected by the auth middleware => authMiddleware
+            // console.log('Request user: ', req.auth);
+            // if (!req.auth) throw new CustomError('401', 'failed', 'Unauthorized: Access Denied');
 
-        switch (type) {
-            case 'CREATE_WISHLIST': {
-                let savedWishlists = [];
-                const { wishlists } = body;
+            console.log('SELECT Request params', req.params);
 
-                const newWishlists = wishlists.map(
-                    ({ name, cover_image, user, data, estimated_price }) => ({
-                        name: name || `Wishlist ${wishlist.length + 1}`,
-                        cover_image: cover_image || { url: '' },
-                        user: user,
-                        data: data,
-                        estimated_price:
-                            estimated_price ||
-                            data.reduce((acc, curVal) => acc + curVal.variants[2].price, 0) ||
-                            0, // paperback variant
+            const returnedWishlists = await Wishlists.find({ user: req.cookies.userId }).select(
+                req.params.select
+            );
+            return successResponse(res, {
+                status: 200,
+                success: true,
+                data: { wishlists: returnedWishlists.map((item) => item._doc) },
+                toast: {
+                    status: 'success',
+                    message: 'Successfully fetched user wishlists',
+                },
+            });
+        } catch (error) {
+            console.log('Error => ', error);
+            errorResponse(res, {
+                statusCode: +error.code,
+                message: error.message,
+                toast: error.toastStatus,
+            });
+        }
+    })
+    .post(async (req, res) => {
+        const { wishlist, body, cookies } = req;
+        try {
+            const { type } = body;
+
+            switch (type) {
+                case 'FETCH_DETAILS': {
+                    const { select, populate = '' } = body;
+                    const returnedWishlists = await Wishlists.find({
+                        user: cookies.userId,
                     })
-                );
+                        .select(select || [])
+                        .populate(populate);
 
-                // Check if a wishlist with the same name exists already
-                // If yes, then check how many copies of this wishlist exists
-
-                // /*
-
-                wishlists.forEach(async (item) => {
-                    let newWishlist = null;
-
-                    const returnedUser = await Users.findOne({ _id: item.user });
-                    if (!returnedUser)
-                        throw new CustomError(
-                            '404',
-                            'failed',
-                            "Can't create playlist. Please login first"
-                        );
-
-                    const wishlistExists = await Wishlists.findOne({
-                        user: item.user,
-                        'name.name': item.name.name,
+                    return successResponse(res, {
+                        status: 200,
+                        success: true,
+                        data: { wishlists: returnedWishlists },
+                        toast: {
+                            status: 'success',
+                            message: 'Fetched user wishlists',
+                        },
                     });
-                    if (wishlistExists) {
-                        wishlistExists.name.duplicate_count += 1;
-                        const savedWishlist = await wishlistExists.save();
-                        if (!savedWishlist)
+                }
+
+                case 'CREATE_WISHLIST': {
+                    let savedWishlists = [];
+                    const { wishlists } = body;
+
+                    const newWishlists = wishlists.map(
+                        ({ name, cover_image, user, data, estimated_price }) => ({
+                            name: name || `Wishlist ${wishlist.length + 1}`,
+                            cover_image: cover_image || { url: '' },
+                            user: user,
+                            data: data,
+                            estimated_price:
+                                estimated_price ||
+                                data.reduce((acc, curVal) => acc + curVal.variants[2].price, 0) ||
+                                0, // paperback variant
+                        })
+                    );
+
+                    // Check if a wishlist with the same name exists already
+                    // If yes, then check how many copies of this wishlist exists
+
+                    // /*
+
+                    wishlists.forEach(async (item) => {
+                        let newWishlist = null;
+
+                        const returnedUser = await Users.findOne({ _id: item.user });
+                        if (!returnedUser)
                             throw new CustomError(
-                                '500',
+                                '404',
                                 'failed',
-                                "Couldn't update the original wishlist"
+                                "Can't create playlist. Please login first"
                             );
 
-                        newWishlist = new Wishlists({
-                            ...item,
-                            name: {
-                                name: `${item.name.name} (${wishlistExists.name.duplicate_count})`,
-                                duplicate_count: 0,
+                        const wishlistExists = await Wishlists.findOne({
+                            user: item.user,
+                            'name.name': item.name.name,
+                        });
+                        if (wishlistExists) {
+                            wishlistExists.name.duplicate_count += 1;
+                            const savedWishlist = await wishlistExists.save();
+                            if (!savedWishlist)
+                                throw new CustomError(
+                                    '500',
+                                    'failed',
+                                    "Couldn't update the original wishlist"
+                                );
+
+                            newWishlist = new Wishlists({
+                                ...item,
+                                name: {
+                                    name: `${item.name.name} (${wishlistExists.name.duplicate_count})`,
+                                    duplicate_count: 0,
+                                },
+                            });
+                        } else {
+                            newWishlist = new Wishlists(item);
+                        }
+
+                        returnedUser.wishlists = [...returnedUser.wishlists, newWishlist];
+                        // await mongooseSave(newWishlist); // This function will just save to DB. Since Mongoose.Model.save() can't be executed in a loop
+                        await returnedUser.save();
+                        await newWishlist.save();
+                        savedWishlists = [...savedWishlists, newWishlist];
+                    });
+                    // savedWishlists = await createWishlists(newWishlists);
+
+                    console.log('Collection of all savedWishlists => ', savedWishlists);
+
+                    return setTimeout(() => {
+                        successResponse(res, {
+                            status: 200,
+                            success: true,
+                            data: {
+                                wishlists: savedWishlists,
+                            },
+                            toast: {
+                                status: 'success',
+                                message: 'Created new wishlist',
                             },
                         });
-                    } else {
-                        newWishlist = new Wishlists(item);
-                    }
+                    }, 3000);
+                }
 
-                    returnedUser.wishlists = [...returnedUser.wishlists, newWishlist];
-                    // await mongooseSave(newWishlist); // This function will just save to DB. Since Mongoose.Model.save() can't be executed in a loop
-                    await returnedUser.save();
-                    await newWishlist.save();
-                    savedWishlists = [...savedWishlists, newWishlist];
-                });
-                // savedWishlists = await createWishlists(newWishlists);
+                case 'DELETE_WISHLIST':
+                    const { wishlists } = body;
 
-                console.log('Collection of all savedWishlists => ', savedWishlists);
+                    const returnedWishlists = [];
 
-                return setTimeout(() => {
-                    successResponse(res, {
-                        status: 200,
-                        success: true,
-                        data: {
-                            wishlists: savedWishlists,
-                        },
-                        toast: {
-                            status: 'success',
-                            message: 'Created new wishlist',
-                        },
+                    wishlists.forEach(async (item) => {
+                        const removedWishlist = await Wishlists.findByIdAndRemove({
+                            _id: item,
+                        });
+                        returnedWishlists.push(removedWishlist);
                     });
-                }, 3000);
+
+                    console.log('deleted wishlists => ', returnedWishlists);
+                    return setTimeout(() => {
+                        successResponse(res, {
+                            status: 200,
+                            success: true,
+                            data: returnedWishlists,
+                            toast: {
+                                status: 'success',
+                                message: 'Deleted wishlist',
+                            },
+                        });
+                    }, 3000);
+
+                default:
+                    throw new CustomError('500', 'failed', 'Invalid operation type');
             }
-
-            case 'DELETE_WISHLIST':
-                const { wishlists } = body;
-
-                const returnedWishlists = [];
-
-                wishlists.forEach(async (item) => {
-                    const removedWishlist = await Wishlists.findByIdAndRemove({
-                        _id: item,
-                    });
-                    returnedWishlists.push(removedWishlist);
-                });
-
-                console.log('deleted wishlists => ', returnedWishlists);
-                return setTimeout(() => {
-                    successResponse(res, {
-                        status: 200,
-                        success: true,
-                        data: returnedWishlists,
-                        toast: {
-                            status: 'success',
-                            message: 'Deleted wishlist',
-                        },
-                    });
-                }, 3000);
-
-            default:
-                throw new CustomError('500', 'failed', 'Invalid operation type');
+        } catch (error) {
+            console.error(error);
+            errorResponse(res, {
+                statusCode: +error.code,
+                message: error.message,
+                toast: error.toastStatus,
+            });
         }
-    } catch (error) {
-        console.error(error);
-        errorResponse(res, {
-            statusCode: +error.code,
-            message: error.message,
-            toast: error.toastStatus,
-        });
-    }
-});
+    });
 
 router.param('wishlistId', async (req, res, next, wishlistId) => {
+    const { select, populate } = req.body;
     try {
         console.log('wishlist id from router.param() middleware', wishlistId);
-        const returnedWishlist = await Wishlists.findOne({ _id: wishlistId }).populate({
-            path: 'data.book',
-        });
+        const returnedWishlist = await Wishlists.findOne({ _id: wishlistId })
+            .select(select || [])
+            .populate(
+                populate || {
+                    path: 'data.book',
+                }
+            );
         if (!returnedWishlist) throw new CustomError('404', 'failed', 'Wishlist not found!');
         console.log('wishlist from routerParam()', returnedWishlist._doc.data);
 
@@ -227,6 +282,18 @@ router
             const { type } = body;
 
             switch (type) {
+                case 'FETCH_DETAILS': {
+                    return successResponse(res, {
+                        status: 200,
+                        success: true,
+                        data: { wishlist: req.wishlist },
+                        toast: {
+                            status: 'success',
+                            message: 'Fetched teh wishlist',
+                        },
+                    });
+                }
+
                 case 'ADD_TO_WISHLIST': {
                     const { wishlistItem } = body;
 
@@ -247,11 +314,21 @@ router
                     await wishlist.save();
 
                     // return setTimeout(() => {
-                    successResponse(res, {
+                    return successResponse(res, {
                         status: 200,
                         success: true,
                         data: {
                             wishlist: wishlistItem,
+                            estimated_price: wishlist.data.reduce(
+                                (acc, cur) =>
+                                    acc +
+                                    cur.book.variants[
+                                        cur.book.variants.findIndex(
+                                            (item) => item.type === 'paperback'
+                                        )
+                                    ].price,
+                                0
+                            ),
                         },
                         toast: {
                             status: 'success',

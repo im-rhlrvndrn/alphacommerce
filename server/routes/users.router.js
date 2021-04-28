@@ -28,9 +28,9 @@ router.param('userId', async (req, res, next, userId) => {
             })
             .populate({
                 path: 'wishlists',
-                // populate: {
-                //     path: 'book',
-                // },
+                populate: {
+                    path: 'data.book',
+                },
             });
         if (!returnedUser) throw new CustomError('404', 'failed', 'No user found!');
 

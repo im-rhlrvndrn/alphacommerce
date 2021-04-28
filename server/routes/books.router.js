@@ -2,19 +2,59 @@ const express = require('express');
 const Books = require('../models/books.model');
 const router = express.Router();
 const data = require('../data');
-const { CustomError, errorResponse } = require('../utils/errorHandlers');
+const { CustomError, errorResponse, successResponse } = require('../utils/errorHandlers');
 
-router.get('/', async (req, res) => {
-    const { genre = 'horror' } = req.query;
-    try {
-        const returnedBooks = await Books.find({});
-        // if (genre) await returnedBooks.find({ genres: { $in: [genre] } });
-        res.status(200).json({ success: true, books: returnedBooks });
-    } catch (error) {
-        console.error(error);
-        errorResponse(res, { code: +error.code, message: error.message, toast: error.toastStatus });
-    }
-});
+router
+    .route('/')
+    .get(async (req, res) => {
+        const { genre = 'horror' } = req.query;
+        try {
+            const returnedBooks = await Books.find({});
+            // if (genre) await returnedBooks.find({ genres: { $in: [genre] } });
+            res.status(200).json({ success: true, books: returnedBooks });
+        } catch (error) {
+            console.error(error);
+            errorResponse(res, {
+                code: +error.code,
+                message: error.message,
+                toast: error.toastStatus,
+            });
+        }
+    })
+    .post(async (req, res) => {
+        const { body } = req;
+        try {
+            const { type } = body;
+            switch (type) {
+                case 'FETCH_DETAILS': {
+                    const { limit, genre } = body;
+                    const returnedBooks = await Books.find({ genres: { $in: [genre] } }).limit(
+                        limit || 0
+                    );
+
+                    return successResponse(res, {
+                        status: 200,
+                        success: true,
+                        data: { books: returnedBooks.map((book) => book._doc) },
+                        toast: {
+                            status: 'success',
+                            message: `Successfully fetched ${limit} books`,
+                        },
+                    });
+                }
+
+                default:
+                    throw new CustomError('500', 'failed', 'Invalid operation type');
+            }
+        } catch (error) {
+            console.error(error);
+            errorResponse(res, {
+                code: +error.code,
+                message: +error.message,
+                toast: error.toastStatus,
+            });
+        }
+    });
 
 router.param('bookId', async (req, res, next, bookId) => {
     try {
