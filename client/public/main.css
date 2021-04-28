@@ -229,6 +229,7 @@ img {
     width: 270px;
     height: 400px;
     overflow: hidden;
+    min-width: 250px;
     position: relative;
     border-radius: var(--br-10);
 }

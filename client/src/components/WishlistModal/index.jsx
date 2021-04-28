@@ -1,4 +1,4 @@
-import { v4 } from 'uuid';
+import axios from '../../axios';
 import { useEffect, useRef, useState } from 'react';
 import { maxWords } from '../../utils/math_helpers';
 import { useAuth } from '../../context/AuthProvider';
@@ -7,9 +7,10 @@ import { useDataLayer } from '../../context/DataProvider';
 
 // styles
 import './wishlistmodal.scss';
-import axios from '../../axios';
 
-export const WishlistModal = ({ setIsModalActive, productIds }) => {
+// * The items prop is an Array so that you can pass multiple items(books) for adding a whole list of items
+// * For example => move an entire cart and create a wishlist out of it in one go
+export const WishlistModal = ({ setIsModalActive, items }) => {
     const { theme } = useTheme();
     const wishlistRef = useRef(null);
     const [{ currentUser }] = useAuth();
@@ -24,16 +25,18 @@ export const WishlistModal = ({ setIsModalActive, productIds }) => {
         const {
             data: { success, data, toast },
         } = await axios.post(`/wishlists/${wishlistId}`, {
-            wishlistItem: productIds[0],
+            wishlistItem: items[0],
             type: 'ADD_TO_WISHLIST',
         });
+
+        console.log('API add to wishlist => ', data);
 
         if (success)
             dataDispatch({
                 type: 'ADD_TO_WISHLIST',
                 payload: {
                     wishlistId: wishlistId,
-                    data: [data.wishlist],
+                    data: [{ book: data.wishlist }],
                 },
             });
     };

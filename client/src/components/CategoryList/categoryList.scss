@@ -32,7 +32,7 @@
     }
 
     .category-list {
-        display: flex;
+        overflow-x: auto;
         margin-top: 1rem;
 
         /* width */

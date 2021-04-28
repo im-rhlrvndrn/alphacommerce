@@ -1,5 +1,7 @@
+import axios from '../../axios';
 import { slugify } from '../../utils';
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useTheme } from '../../context/ThemeProvider';
 
 // Styles
@@ -8,16 +10,32 @@ import './categoryList.scss';
 // React components
 import { CategoryListItem } from './CategoryListitem';
 
-export const CategoryList = ({ books, genre }) => {
+export const CategoryList = ({ genre }) => {
     const { theme } = useTheme();
+    const [books, setBooks] = useState([]);
     console.log(`products before slice(${genre}): `, books);
-    books = books.filter((item) => item.genres.includes(genre)).slice(0, 5);
+    // books = books.filter((item) => item.genres.includes(genre)).slice(0, 5);
 
     console.log(`products after slice(${genre}): `, books);
 
-    // useEffect(() => {
-    //     console.log('Re-render because of change in currentUser (CategoryListComp)', currentUser);
-    // }, [currentUser]);
+    const fetchBooks = async (limit = 5) => {
+        try {
+            const {
+                data: { success, data, toast },
+            } = await axios.post(`/books`, {
+                type: 'FETCH_DETAILS',
+                limit,
+                genre,
+            });
+            if (success)
+                setBooks((prevState) => data.books.filter((item) => item.genres.includes(genre)));
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    useEffect(() => {
+        fetchBooks(6);
+    }, []);
 
     return (
         <div className='category-section'>
@@ -39,7 +57,7 @@ export const CategoryList = ({ books, genre }) => {
                     </Link>
                 </div>
             )}
-            <div className='category-list'>
+            <div className='category-list flex'>
                 {books?.map((productItem) => (
                     <CategoryListItem key={productItem._id} item={productItem} />
                 ))}

@@ -37,7 +37,7 @@ export const CategoryListItem = ({ item }) => {
 
     return (
         <>
-            <div class='card'>
+            <div className='card'>
                 <div className='cta'>
                     <div
                         className='cart-icon'
@@ -76,20 +76,20 @@ export const CategoryListItem = ({ item }) => {
                         <OutlinedWishListIcon style={{ fill: theme.dark_background }} />
                     </div>
                 </div>
-                <img class='stretch' src={cover_image?.url} alt={name} />
+                <img className='stretch' src={cover_image?.url} alt={name} />
                 <div
-                    class='overlay flex flex-justify-sb flex-align-center'
+                    className='overlay flex flex-justify-sb flex-align-center'
                     style={{ backgroundColor: theme.dark_background }}
                 >
-                    <div class='info' style={{ color: theme.color }}>
-                        <div class='font-weight-md'>{maxWords(name, 12)}</div>
-                        <div class='font-xs opac-6'>By {maxWords(authors.join(', '), 12)}</div>
-                        <div class='font-md font-weight-md'>₹ {variants[0].price}</div>
+                    <div className='info' style={{ color: theme.color }}>
+                        <div className='font-weight-md'>{maxWords(name, 12)}</div>
+                        <div className='font-xs opac-6'>By {maxWords(authors.join(', '), 12)}</div>
+                        <div className='font-md font-weight-md'>₹ {variants[0].price}</div>
                     </div>
                     <Link
                         // target='_blank'
                         to={`/p/${_id}`}
-                        class='text-align-center font-lg rounded icon-50 flex flex-align-center flex-justify-center'
+                        className='text-align-center font-lg rounded icon-50 flex flex-align-center flex-justify-center'
                         style={{ backgroundColor: theme.color, color: theme.dark_background }}
                     >
                         <RightArrowIcon fill={theme.dark_background} />
@@ -98,10 +98,7 @@ export const CategoryListItem = ({ item }) => {
             </div>
             {wishlistModal.isActive && (
                 <Modal setIsModalActive={setWishlistModal}>
-                    <WishlistModal
-                        setIsModalActive={setWishlistModal}
-                        productIds={[{ _id, totalPrice: variants[0].price }]}
-                    />
+                    <WishlistModal setIsModalActive={setWishlistModal} items={[item]} />
                 </Modal>
             )}
         </>

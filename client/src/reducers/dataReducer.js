@@ -173,7 +173,22 @@ export const reducer = (state, { type, payload }) => {
 
         case 'SET_WISHLISTS': {
             const { wishlists } = payload;
-            updatedWishlist = eliminateDuplicatesById([...state.wishlists, ...wishlists]);
+            updatedWishlist = eliminateDuplicatesById([...wishlists]);
+
+            // localStorage.removeItem('currentUser');
+            // localStorage.removeItem('wishlists');
+            saveDataToLocalStorage('wishlists', updatedWishlist);
+            return {
+                ...state,
+                wishlists: updatedWishlist,
+            };
+        }
+
+        case 'UPDATE_WISHLIST': {
+            const { wishlist: wishlistPayload } = payload;
+            updatedWishlist = state.wishlists.map((wishlist) =>
+                wishlist._id === wishlistPayload._id ? wishlistPayload : wishlist
+            );
 
             saveDataToLocalStorage('wishlists', updatedWishlist);
             return {
@@ -217,6 +232,24 @@ export const reducer = (state, { type, payload }) => {
                           //       ),
                           //       2
                           //   ),
+                          estimated_price: [...wishlist.data, ...payload.data]
+                              .reduce((acc, curVal) => {
+                                  tempState[curVal.book._id]
+                                      ? (tempState[curVal.book._id] += 1)
+                                      : (tempState[curVal.book._id] = 1);
+                                  if (tempState[curVal.book._id] <= 1) return [...acc, curVal];
+                                  return [...acc];
+                              }, [])
+                              .reduce(
+                                  (acc, cur) =>
+                                      acc +
+                                      cur.variants[
+                                          cur.variants.findIndex(
+                                              (item) => item.type === 'paperback'
+                                          )
+                                      ].price,
+                                  0
+                              ),
                       }
                     : wishlist
             );
@@ -228,30 +261,28 @@ export const reducer = (state, { type, payload }) => {
             };
 
         // ! update the entire function
-        case 'REMOVE_FROM_WISHLIST':
-            updatedWishlist = state.wishlists.map((wishlistItem) =>
-                wishlistItem.userId === currentUser
-                    ? {
-                          ...wishlistItem,
-                          data: wishlistItem.data.map((data) =>
-                              data.id === payload.readlistId
-                                  ? {
-                                        ...data,
-                                        books: data.books.filter(
-                                            (item) => item.id !== payload.productId
-                                        ),
-                                    }
-                                  : data
-                          ),
-                      }
-                    : wishlistItem
-            );
+        case 'REMOVE_FROM_WISHLIST': {
+            const { wishlistId, wishlist } = payload;
+            updatedWishlist = state.wishlists.map((wishlistItem) => {
+                if (wishlistItem._id === wishlistId) {
+                    console.log('Wishlist Item => ', wishlistItem);
+
+                    return {
+                        ...wishlistItem,
+                        data: wishlistItem.data.filter(
+                            (wishlistItem) => wishlistItem.book._id !== wishlist.book._id
+                        ),
+                    };
+                }
+                return wishlistItem;
+            });
 
             saveDataToLocalStorage('wishlists', updatedWishlist);
             return {
                 ...state,
                 wishlists: updatedWishlist,
             };
+        }
 
         default:
             return state;

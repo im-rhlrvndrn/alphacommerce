@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import axios from '../../axios';
 import { useHistory } from 'react-router';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthProvider';
 import { useTheme } from '../../context/ThemeProvider';
 import { useDataLayer } from '../../context/DataProvider';
@@ -21,17 +22,31 @@ export const CartPage = () => {
     const [wishlistModal, setWishlistModal] = useState({ isActive: false });
     const [userCart, setUserCart] = useState([]);
 
+    const fetchCart = async () => {
+        try {
+            const {
+                data: { success, data, toast },
+            } = await axios.post(`/carts`, {
+                type: 'FETCH_DETAILS',
+                populate: {
+                    path: 'data.book',
+                },
+            });
+            if (success) {
+                setUserCart((prevState) => data.cart.data);
+                dataDispatch({ type: 'SET_CART', payload: { cart: data.cart } });
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
     // Determining the cart values based on authentication
 
-    useEffect(() => {
-        // const userIndex = cart.findIndex((cartItem) => cartItem.userId === currentUser);
-        setUserCart((prevState) => cart.data);
-        // if (cart.data.length === 0) history.replace('/');
-    }, [cart, currentUser]);
+    useEffect(() => {}, [cart, currentUser]);
 
-    // useEffect(() => {
-    //     console.log('Re-render because of change in currentUser (CartPageComp)', currentUser);
-    // }, [currentUser]);
+    useEffect(() => {
+        fetchCart();
+    }, []);
 
     return (
         <>

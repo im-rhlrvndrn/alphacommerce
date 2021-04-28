@@ -17,7 +17,10 @@ export const generateSearchParams = (input) =>
 export const getSelectedVariantPrice = (variantArray, variantType = 'paperback') =>
     variantArray[findIndex(variantArray, 'type', variantType)].price;
 
-export { alreadyExists, findIndex } from './array_helpers';
+export const getVariantPrice = (arraySet, variantType = 'paperback') =>
+    arraySet.find((item) => item.type === variantType).price;
+
 export { getFilteredData, getSortedData } from './filter';
+export { alreadyExists, findIndex } from './array_helpers';
 export { increment, incrementBy, decrement, decrementBy, maxWords } from './math_helpers';
 export { calculateSubTotal, calculateTax, calculateTotal, fixedTo } from './cart_helpers';

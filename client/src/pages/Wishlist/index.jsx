@@ -1,45 +1,51 @@
+import axios from '../../axios';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthProvider';
 import { useHistory, useParams } from 'react-router';
 import { useTheme } from '../../context/ThemeProvider';
 import { useDataLayer } from '../../context/DataProvider';
-import { ReadlistItem } from '../../components/WishlistItem';
+import { WishlistItem } from '../../components/WishlistItem';
 
 export const Wishlist = () => {
     const { theme } = useTheme();
     const history = useHistory();
-    let userIndex, wishListIndex;
     const urlParams = useParams();
     const [{ currentUser }] = useAuth();
-    const [{ wishlists, products }] = useDataLayer();
+    const [{ wishlists }, dataDispatch] = useDataLayer();
     const [wishList, setWishList] = useState({});
 
-    const renderReadListItems = () => {
-        return products?.map((productItem) =>
-            wishList?.data?.map(
-                (wishListItem) =>
-                    wishListItem.book._id === productItem._id && <ReadlistItem item={productItem} />
-            )
-        );
+    const renderWishListItems = () =>
+        wishList?.data?.length
+            ? wishList?.data?.map((wishListItem) => <WishlistItem item={wishListItem.book} />)
+            : 'No items in wishlist';
+
+    const fetchWishlistItems = async () => {
+        try {
+            const {
+                data: { success, data, toast },
+            } = await axios.post(`/wishlists/${urlParams.id}`, {
+                type: 'FETCH_DETAILS',
+            });
+            if (success) {
+                dataDispatch({
+                    type: 'UPDATE_WISHLIST',
+                    payload: { wishlist: data.wishlist },
+                });
+                console.log(`---Fetched wishlist---`, data.wishlist);
+                setWishList((prevState) => data.wishlist);
+            }
+        } catch (error) {
+            console.error(error);
+        }
     };
 
+    useEffect(() => {}, [wishlists, currentUser]);
+
     useEffect(() => {
-        // userIndex = wishlists.findIndex((item) => item.userId === currentUser);
-        wishListIndex = wishlists.findIndex((item) => item._id === urlParams.id);
+        fetchWishlistItems();
+    }, []);
 
-        setWishList((prevState) => wishlists[wishListIndex]);
-        // if (wishListIndex < 0 || wishlists.data[wishListIndex].products.length === 0)
-        //     history.goBack();
-    }, [wishlists, currentUser]);
-
-    // useEffect(() => {
-    //     userIndex = wishlists.findIndex((item) => item.userId === currentUser);
-    //     wishListIndex = wishlists[userIndex].data.findIndex((item) => item.id === urlParams.id);
-
-    //     console.log('The readlist: ', wishlists[userIndex].data[wishListIndex]);
-    //     if (wishListIndex < 0 || wishlists[userIndex].data[wishListIndex].products.length === 0)
-    //         history.goBack();
-    // }, []);
+    console.log('Wishlist FrontEnd data => ', wishList);
 
     return (
         <>
@@ -52,7 +58,7 @@ export const Wishlist = () => {
                         {wishList?.name?.name}
                     </div>
                     <div className='cart-items' style={{ color: theme.color }}>
-                        {renderReadListItems()}
+                        {renderWishListItems()}
                     </div>
                     <button
                         className='continue-shopping mr-2'
@@ -86,14 +92,14 @@ export const Wishlist = () => {
                     >
                         <div className='checkout-group-row flex flex-justify-sb mb-1'>
                             <div className='heading'>total</div>
-                            <div className='price'>₹ {wishList?.estimated_price?.value}</div>
+                            <div className='price'>₹ {wishList?.estimated_price}</div>
                         </div>
                     </div>
                     <button
-                        className='w-100p text-align-center'
+                        className='w-100p font-weight-md text-align-center'
                         style={{
-                            backgroundColor: theme.constants.dark,
-                            color: theme.constants.light,
+                            backgroundColor: theme.constants.primary,
+                            color: theme.constants.dark,
                         }}
                     >
                         Proceed to Checkout
@@ -102,7 +108,7 @@ export const Wishlist = () => {
                         className='w-100p text-align-center'
                         style={{ backgroundColor: 'transparent', color: theme.color }}
                     >
-                        Create a bibliography
+                        Add all items to cart
                     </button>
                 </div>
             </div>

@@ -6,6 +6,7 @@ import { useDataLayer } from '../../context/DataProvider';
 
 // styles
 import './wishlistpage.scss';
+import axios from '../../axios';
 
 export const WishlistPage = () => {
     const { theme } = useTheme();
@@ -14,11 +15,31 @@ export const WishlistPage = () => {
     const [{ wishlists }, dataDispatch] = useDataLayer();
     const [wish_lists, setWishlists] = useState([]);
 
-    console.log(wish_lists);
+    // console.log(wish_lists);
+
+    const fetchWishlists = async () => {
+        try {
+            const {
+                data: { success, data, toast },
+            } = await axios.post(`/wishlists`, {
+                type: 'FETCH_DETAILS',
+                select: ['name', 'cover_image'],
+            });
+            if (success) {
+                dataDispatch({ type: 'SET_WISHLISTS', payload: { wishlists: data.wishlists } });
+                console.log(`---Fetched wishlists---`, data.wishlists);
+                setWishlists((prevState) => data.wishlists);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    useEffect(() => {}, [wishlists, currentUser]);
 
     useEffect(() => {
-        setWishlists((prevState) => wishlists);
-    }, [wishlists, currentUser]);
+        fetchWishlists();
+    }, []);
 
     return (
         <div
