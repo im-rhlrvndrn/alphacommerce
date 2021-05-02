@@ -10,9 +10,14 @@ $sm-text: 0.8rem;
 $md-text: 1rem;
 $lg-text: 1.5rem;
 
+@mixin tablet {
+    @media screen and (max-width: 768px) {
+        @content;
+    }
+}
+
 @mixin mobile {
     @media screen and (max-width: 500px) {
         @content;
     }
 }
-

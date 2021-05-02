@@ -57,17 +57,20 @@ export const reducer = (state, { type, payload }) => {
         }, []);
 
     switch (type) {
-        case 'SET_GENRES':
+        case 'SET_GENRES': {
             return { ...state, genres: eliminateDuplicates([...state.genres, ...payload]) };
+        }
 
-        case 'SET_AUTHORS':
+        case 'SET_AUTHORS': {
             return { ...state, authors: eliminateDuplicates([...state.authors, ...payload]) };
+        }
 
-        case 'STOREBOOKS':
+        case 'STOREBOOKS': {
             saveDataToLocalStorage('books', payload);
             return { ...state, books: [...state.books, ...payload] };
+        }
 
-        case 'SETUP_NEW_USER':
+        case 'SETUP_NEW_USER': {
             return {
                 ...state,
                 cart: {
@@ -79,8 +82,9 @@ export const reducer = (state, { type, payload }) => {
                 // ! In wishlists, the wishlists in Guest Account will be created on the DB and added to the user's wishlist array
                 wishlists: payload.wishlists,
             };
+        }
 
-        case 'FILTER_BY_GENRE':
+        case 'FILTER_BY_GENRE': {
             console.log('alreadyExists: ', {
                 value: alreadyExists(state.genreFilters, payload),
                 typeof: typeof alreadyExists(state.genreFilters, payload),
@@ -92,12 +96,14 @@ export const reducer = (state, { type, payload }) => {
                     ? [...state.genreFilters.filter((item) => item !== payload)]
                     : [...state.genreFilters, payload],
             };
+        }
 
-        case 'SORT_BY_PRICE':
+        case 'SORT_BY_PRICE': {
             console.log('price filter: ', payload);
             return { ...state, priceFilter: payload === state.priceFilter ? '' : payload };
+        }
 
-        case 'FILTER_BY_AUTHOR':
+        case 'FILTER_BY_AUTHOR': {
             console.log('alreadyExists: ', alreadyExists(state.authorFilters, payload));
             return {
                 ...state,
@@ -105,12 +111,13 @@ export const reducer = (state, { type, payload }) => {
                     ? [...state.authorFilters.filter((item) => item !== payload)]
                     : [...state.authorFilters, payload],
             };
+        }
 
         // case 'TRANSFER_DATA':
 
         //     break;
 
-        case 'SET_CART':
+        case 'SET_CART': {
             const { cart } = payload;
             updatedCart = {
                 _id: cart._id,
@@ -124,8 +131,9 @@ export const reducer = (state, { type, payload }) => {
                 ...state,
                 cart: updatedCart,
             };
+        }
 
-        case 'ADD_TO_CART':
+        case 'ADD_TO_CART': {
             updatedCart = {
                 ...state.cart,
                 data: [...state.cart.data, ...payload.data],
@@ -137,13 +145,15 @@ export const reducer = (state, { type, payload }) => {
                 ...state,
                 cart: { ...updatedCart },
             };
+        }
 
-        case 'UPDATE_CART_ITEM':
+        case 'UPDATE_CART_ITEM': {
             updatedCart = {
                 ...state.cart,
                 data: state.cart.data.map((item) =>
-                    item.book._id === payload._id &&
-                    item.variant.type === payload.updatedItem.variant.type
+                    (item.book._id === payload._id &&
+                        item.variant.type === payload.updatedItem.variant.type) ||
+                    item._id === payload.updatedItem._id
                         ? payload.updatedItem
                         : item
                 ),
@@ -153,10 +163,11 @@ export const reducer = (state, { type, payload }) => {
             saveDataToLocalStorage('cart', updatedCart);
             return {
                 ...state,
-                cart: updatedCart,
+                cart: { ...updatedCart },
             };
+        }
 
-        case 'REMOVE_FROM_CART':
+        case 'REMOVE_FROM_CART': {
             updatedCart = {
                 ...state.cart,
                 data: state.cart.data.filter(
@@ -170,6 +181,7 @@ export const reducer = (state, { type, payload }) => {
 
             saveDataToLocalStorage('cart', updatedCart);
             return { ...state, cart: { ...updatedCart } };
+        }
 
         case 'SET_WISHLISTS': {
             const { wishlists } = payload;
@@ -197,13 +209,14 @@ export const reducer = (state, { type, payload }) => {
             };
         }
 
-        case 'CREATE_WISHLIST':
+        case 'CREATE_WISHLIST': {
             updatedWishlist = [...state.wishlists, ...payload];
 
             saveDataToLocalStorage('wishlists', updatedWishlist);
             return { ...state, wishlists: updatedWishlist };
+        }
 
-        case 'DELETE_WISHLIST':
+        case 'DELETE_WISHLIST': {
             updatedWishlist = state.wishlists.map((wishlistItem) =>
                 wishlistItem.userId === currentUser
                     ? {
@@ -218,8 +231,9 @@ export const reducer = (state, { type, payload }) => {
                 ...state,
                 wishlists: updatedWishlist,
             };
+        }
 
-        case 'ADD_TO_WISHLIST':
+        case 'ADD_TO_WISHLIST': {
             updatedWishlist = state.wishlists.map((wishlist) =>
                 wishlist._id === payload._id
                     ? {
@@ -259,6 +273,7 @@ export const reducer = (state, { type, payload }) => {
                 ...state,
                 wishlists: updatedWishlist,
             };
+        }
 
         // ! update the entire function
         case 'REMOVE_FROM_WISHLIST': {

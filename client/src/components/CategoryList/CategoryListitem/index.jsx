@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { maxWords } from '../../../utils/math_helpers';
 import { useAuth } from '../../../context/AuthProvider';
+import useWindowSize from '../../../hooks/useWindowSize';
 import { useTheme } from '../../../context/ThemeProvider';
 import { useDataLayer } from '../../../context/DataProvider';
 
@@ -16,6 +17,7 @@ import { OutlinedWishListIcon } from '../../../react_icons/OutlinedWishListIcon'
 import './categorylistitem.scss';
 
 export const CategoryListItem = ({ item }) => {
+    const _window = useWindowSize();
     const { theme } = useTheme();
     const [{ currentUser }] = useAuth();
     const [{ cart }, dataDispatch] = useDataLayer();
@@ -82,17 +84,24 @@ export const CategoryListItem = ({ item }) => {
                     style={{ backgroundColor: theme.dark_background }}
                 >
                     <div className='info' style={{ color: theme.color }}>
-                        <div className='font-weight-md'>{maxWords(name, 12)}</div>
-                        <div className='font-xs opac-6'>By {maxWords(authors.join(', '), 12)}</div>
-                        <div className='font-md font-weight-md'>₹ {variants[0].price}</div>
+                        <div className='title font-weight-md'>{maxWords(name, 12)}</div>
+                        <div className='authors font-xs opac-6'>
+                            By {maxWords(authors.join(', '), 12)}
+                        </div>
+                        <div className='price font-md font-weight-md'>₹ {variants[0].price}</div>
                     </div>
                     <Link
                         // target='_blank'
                         to={`/p/${_id}`}
                         className='text-align-center font-lg rounded icon-50 flex flex-align-center flex-justify-center'
-                        style={{ backgroundColor: theme.color, color: theme.dark_background }}
+                        style={{
+                            backgroundColor: _window.width <= 768 ? 'transparent' : theme.color,
+                            color: theme.dark_background,
+                        }}
                     >
-                        <RightArrowIcon fill={theme.dark_background} />
+                        <RightArrowIcon
+                            fill={_window.width <= 768 ? theme.color : theme.dark_background}
+                        />
                     </Link>
                 </div>
             </div>

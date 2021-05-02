@@ -4,6 +4,10 @@
     display: flex;
     min-height: calc(100vh - 5rem);
     padding: 6rem 4rem 2rem 4rem;
+    @include tablet {
+        flex-direction: column-reverse;
+        padding: 2rem;
+    }
 
     .cart {
         flex: 0.8;
@@ -16,6 +20,9 @@
         .cart-items {
             margin-top: 4rem;
             padding-right: 2rem;
+            @include mobile {
+                padding: 0;
+            }
 
             &-heading {
                 // width: 100%;
@@ -44,19 +51,55 @@
         flex: 0.2;
         position: sticky;
         top: calc(80px + 1rem);
+        @include tablet {
+            position: relative;
+            top: 0;
+            margin-bottom: 2rem;
+        }
 
-        .checkout-group {
-            &:last-of-type {
-                // ! used important to overwrite the inline styles
-                border: none !important;
+        h2 {
+            line-height: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .heading {
+            opacity: 0.4;
+            // text-transform: capitalize;
+        }
+
+        &-cta {
+            display: flex;
+            align-items: center;
+            @include tablet {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                min-height: 80px;
+                padding: 1rem 2rem;
             }
 
-            &-row {
-                .heading {
-                    opacity: 0.4;
-                    text-transform: uppercase;
-                }
+            .total-amount {
+                flex: 0.5;
             }
+
+            button {
+                flex: 0.5;
+                min-height: 45px;
+            }
+        }
+    }
+}
+
+@media screen and (min-width: 769px) {
+    .cart-checkout-cta {
+        flex-direction: column;
+
+        .total-amount {
+            width: 100%;
+            display: flex;
+            margin-bottom: 1rem;
+            justify-content: space-between;
         }
     }
 }

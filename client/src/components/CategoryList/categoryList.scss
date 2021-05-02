@@ -13,6 +13,9 @@
         position: relative;
         align-items: center;
         text-transform: capitalize;
+        @include tablet {
+            font-size: 1.5rem;
+        }
 
         .floating-genre {
             left: 5%;
@@ -23,6 +26,9 @@
             position: absolute;
             text-transform: capitalize;
             transform: translateY(-20%);
+            @include tablet {
+                display: none;
+            }
         }
 
         a {

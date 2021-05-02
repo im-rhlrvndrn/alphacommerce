@@ -1,0 +1,17 @@
+@import '../../mixins.scss';
+
+.hero-section {
+    min-height: 50vh;
+    padding: 4rem 2rem;
+    position: relative;
+    @include mobile {
+        height: 60vh;
+    }
+}
+
+.categories {
+    padding: 16rem 4rem 4rem 4rem;
+    @include tablet {
+        padding: 12rem 2rem 2rem 2rem;
+    }
+}

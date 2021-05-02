@@ -1,30 +1,32 @@
 import { useHistory } from 'react-router';
 import { useTheme } from '../../../context/ThemeProvider';
+import { useDataLayer } from '../../../context/DataProvider';
 
 // React components
 import { CartItems } from './CartItems';
 
-export const CartItemsContainer = ({ cart }) => {
+export const CartItemsContainer = () => {
     const history = useHistory();
     const { theme } = useTheme();
+    const [{ cart }] = useDataLayer();
 
     return (
         <div className='cart'>
             <div className='font-md cart-heading' style={{ color: theme.color }}>
-                My bag <span className='font-weight-s'>{cart.length} item(s)</span>
+                My bag <span className='font-weight-s'>{cart.data.length} item(s)</span>
             </div>
-            {cart.length === 0 ? (
+            {cart.data.length === 0 ? (
                 <p style={{ color: theme.color }}>No items in cart</p>
             ) : (
                 <div className='cart-items' style={{ color: theme.color }}>
-                    <div className='cart-items-heading'>
+                    {/* <div className='cart-items-heading'>
                         <span>item</span>
                         <span>price</span>
                         <span>quantity</span>
                         <span>total price</span>
                         <span>remove</span>
-                    </div>
-                    <CartItems cart={cart} />
+                    </div> */}
+                    <CartItems />
                 </div>
             )}
             <button

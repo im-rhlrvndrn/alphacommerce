@@ -1,3 +1,5 @@
+@import '../../mixins.scss';
+
 .category-page {
     width: 100%;
     min-height: calc(100vh - 80px);
@@ -17,6 +19,9 @@
     main {
         padding: 4rem;
         position: relative;
+        @include tablet {
+            padding: 2rem;
+        }
 
         .main-header {
             margin-bottom: 1rem;
@@ -40,6 +45,18 @@
             .category-container {
                 flex: 0.8;
                 padding: 0 0 0 4rem;
+                @include tablet {
+                    padding: 0 0 0 2rem;
+                }
+
+                .listing-container {
+                    width: 100%;
+
+                    .card {
+                        margin-right: 2rem;
+                        margin-bottom: 2rem;
+                    }
+                }
             }
         }
     }

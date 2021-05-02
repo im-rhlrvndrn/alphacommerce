@@ -20,7 +20,6 @@ export const CartPage = () => {
     const [{ currentUser }] = useAuth();
     const [{ cart }, dataDispatch] = useDataLayer();
     const [wishlistModal, setWishlistModal] = useState({ isActive: false });
-    const [userCart, setUserCart] = useState([]);
 
     const fetchCart = async () => {
         try {
@@ -33,7 +32,6 @@ export const CartPage = () => {
                 },
             });
             if (success) {
-                setUserCart((prevState) => data.cart.data);
                 dataDispatch({ type: 'SET_CART', payload: { cart: data.cart } });
             }
         } catch (error) {
@@ -42,7 +40,7 @@ export const CartPage = () => {
     };
     // Determining the cart values based on authentication
 
-    useEffect(() => {}, [cart, currentUser]);
+    useEffect(() => {}, [cart.checkout, currentUser]);
 
     useEffect(() => {
         fetchCart();
@@ -51,14 +49,14 @@ export const CartPage = () => {
     return (
         <>
             <div className='cart-wrapper' style={{ backgroundColor: theme.dark_background }}>
-                <CartItemsContainer cart={userCart} />
-                <CartCheckout cart={userCart} setWishlistModal={setWishlistModal} />
+                <CartItemsContainer />
+                <CartCheckout setWishlistModal={setWishlistModal} />
             </div>
             {wishlistModal.isActive && (
                 <Modal setIsModalActive={setWishlistModal}>
                     <WishlistModal
                         setIsModalActive={setWishlistModal}
-                        productIds={userCart?.map((item) => ({
+                        productIds={cart?.data?.map((item) => ({
                             id: item.id,
                             totalPrice: item.totalPrice,
                         }))}

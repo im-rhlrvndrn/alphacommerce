@@ -1,7 +1,12 @@
+@import '../../mixins.scss';
+
 .wishlist {
     padding: 2rem 4rem;
     min-height: calc(100vh - 80px);
     height: auto;
+    @include tablet {
+        padding: 2rem;
+    }
 
     #wishlist-search {
         display: block;
@@ -15,18 +20,29 @@
         display: flex;
 
         .wishlist-item {
-            margin: 0 1rem 1rem 0;
             display: flex;
-            border-radius: 5px;
-            overflow: hidden;
-            flex-direction: column;
             max-width: 300px;
+            overflow: hidden;
             max-height: 250px;
+            border-radius: 5px;
+            margin: 0 1rem 1rem 0;
+            flex-direction: column;
+            @include tablet {
+                margin: 0;
+                width: 100%;
+                max-width: 100%;
+                flex-direction: row;
+            }
 
             img {
                 height: 80%;
                 width: 100%;
                 object-fit: cover;
+                @include tablet {
+                    height: 100px;
+                    width: 150px;
+                    // margin-right: 2rem;
+                }
             }
 
             .content {
@@ -34,6 +50,9 @@
                 width: 100%;
                 padding: 1rem;
                 background-color: whitesmoke;
+                @include tablet {
+                    height: 100%;
+                }
 
                 .name {
                     font-weight: 600;

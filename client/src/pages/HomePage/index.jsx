@@ -1,6 +1,9 @@
 import { useTheme } from '../../context/ThemeProvider';
 import { useDataLayer } from '../../context/DataProvider';
 
+// styles
+import './home.scss';
+
 // React components
 import { ProductList } from '../../components/ProductList';
 import { CategoryList } from '../../components/CategoryList';
@@ -12,12 +15,10 @@ export const HomePage = () => {
     return (
         <>
             <div
+                className='hero-section'
                 style={{
                     backgroundColor: theme.dark_background,
                     color: theme.color,
-                    padding: '4rem 2rem',
-                    position: 'relative',
-                    minHeight: '50vh',
                 }}
             >
                 <ProductList />
@@ -25,7 +26,6 @@ export const HomePage = () => {
             <section
                 className='categories'
                 style={{
-                    padding: '16rem 4rem 4rem 4rem',
                     backgroundColor: theme.light_background,
                     color: theme.color,
                 }}

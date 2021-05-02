@@ -1,14 +1,16 @@
 import axios from '../../axios';
+import { useEffect, useState } from 'react';
 import { maxWords } from '../../utils/math_helpers';
 import { useTheme } from '../../context/ThemeProvider';
 import { useDataLayer } from '../../context/DataProvider';
-import { getSelectedVariantPrice } from '../../utils';
 
 // styles
 import './cartItem.scss';
 
 // React components
+import { Modal } from '../Modal';
 import { AddToCart } from '../Buttons';
+import { VariantModal } from '../Modals/VariantModal';
 
 export const CartItem = ({ item }) => {
     const {
@@ -18,6 +20,7 @@ export const CartItem = ({ item }) => {
     } = item;
     const { theme } = useTheme();
     const [{ cart }, dataDispatch] = useDataLayer();
+    const [variantModal, setVariantModal] = useState({ isActive: false });
 
     const removeFromCart = async (id) => {
         if (cart._id === 'guest') {
@@ -58,23 +61,55 @@ export const CartItem = ({ item }) => {
     };
 
     return (
-        <div className='cartItem' style={{ color: theme.color }}>
-            <img src={cover_image?.url} alt={name} />
-            <p className='cartItem_name'>{maxWords(name, 30)}</p>
-            <p className='cartItem_price'>
-                ₹ {getSelectedVariantPrice(item.book.variants, variant.type)}
-            </p>
-            <div className='quantity-container'>
-                <AddToCart item={item?.book} variant={variant} />
+        <>
+            <div className='cartItem_wrapper' style={{ color: theme.color }}>
+                <div className='cartItem_container'>
+                    <div className='cartItem_details'>
+                        <p className='name'>{maxWords(name, 30)}</p>
+                        <p className='total_price font-lg'>₹ {total}</p>
+                        {/* <p className='price'>
+                        ₹ {getSelectedVariantPrice(item.book.variants, variant.type)}
+                    </p> */}
+                        <div className='quantity_container'>
+                            <AddToCart item={item?.book} variant={variant} />
+                            <button
+                                className='variant'
+                                style={{
+                                    backgroundColor: theme.color,
+                                    color: theme.dark_background,
+                                }}
+                                onClick={() =>
+                                    setVariantModal((prevState) => ({
+                                        ...prevState,
+                                        isActive: !prevState.isActive,
+                                    }))
+                                }
+                            >
+                                Variant: <strong className='font-weight-md'>{variant?.type}</strong>
+                            </button>
+                        </div>
+                    </div>
+                    <img src={cover_image?.url} alt={name} />
+                </div>
+                <div className='cartItem_cta'>
+                    <button
+                        className='remove_item'
+                        onClick={() => removeFromCart(_id)}
+                        style={{ color: theme.color }}
+                    >
+                        Remove
+                    </button>
+                </div>
             </div>
-            <p className='cartItem_total_price'>₹ {total}</p>
-            <button
-                className='remove-item'
-                onClick={() => removeFromCart(_id)}
-                style={{ color: theme.color }}
-            >
-                X
-            </button>
-        </div>
+            {variantModal.isActive && (
+                <Modal setIsModalActive={setVariantModal}>
+                    <VariantModal
+                        selectedVariant={{ cartItemId: item._id, variant, bookId: _id }}
+                        variants={item.book.variants}
+                        setVariantModal={setVariantModal}
+                    />
+                </Modal>
+            )}
+        </>
     );
 };
