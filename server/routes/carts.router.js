@@ -39,8 +39,9 @@ router.route('/').post(async (req, res) => {
 
 router.param('cartId', async (req, res, next, cartId) => {
     try {
-        const returnedCart = req.body.cart
-            ? req.body.cart
+        const { body } = req;
+        const returnedCart = body.cart
+            ? body.cart
             : await Carts.findById(cartId).populate({
                   path: 'data.book',
                   // select: ['name'],
@@ -93,9 +94,10 @@ router
             body: { type }, // Destructuring for all the cases
         } = req;
         try {
+            const { body } = req;
             switch (type) {
                 case 'ADD_TO_CART': {
-                    const { data, multi } = req.body;
+                    const { data, multi } = body;
 
                     const newCartItems = data.map(({ book, quantity, variant, total }) => ({
                         book: book,
@@ -166,7 +168,7 @@ router
                 }
 
                 case 'REMOVE_FROM_CART': {
-                    const { _id, variant } = req.body;
+                    const { _id, variant } = body;
 
                     console.log('[REMOVE] before => ', { cartData: cart.data });
                     cart.data = cart.data.filter(
@@ -196,7 +198,7 @@ router
                 }
 
                 case 'UPDATE_QUANTITY': {
-                    const { _id, variant, inc } = req.body;
+                    const { _id, variant, inc } = body;
                     let updatedItem = {};
 
                     cart.data = cart.data.map((item) => {
@@ -227,10 +229,66 @@ router
                     const updatedCart = cart._id === 'guest' ? cart : await cart.save();
                     if (!updatedCart)
                         throw new CustomError('500', 'failed', "Couldn't update the cart item");
+
                     return res.status(200).json({
                         success: true,
                         data: {
                             _id,
+                            updatedItem,
+                            checkout: updatedCart.checkout,
+                        },
+                        toast: {
+                            status: 'success',
+                            message: 'Updated cart item',
+                        },
+                    });
+                }
+
+                case 'UPDATE_VARIANT': {
+                    const { cartItemId, bookId, variant } = body;
+                    let updatedItem = {};
+
+                    if (
+                        cart.data.findIndex(
+                            (item) =>
+                                item.book._id.toString() === bookId &&
+                                item.variant.type === variant.type
+                        ) !== -1
+                    )
+                        throw new CustomError('209', 'warning', 'Already in cart');
+
+                    cart.data = cart.data.map((item) => {
+                        if (item._id.toString() === cartItemId) {
+                            updatedItem = {
+                                ...(cart._id === 'guest' ? item : item._doc),
+                                variant,
+                                total:
+                                    item.quantity *
+                                    item.book.variants[
+                                        item.book.variants.findIndex(
+                                            (item) => item.type === variant.type
+                                        )
+                                    ].price,
+                            };
+                            console.log('updated item => ', updatedItem);
+                            return updatedItem;
+                        }
+                        return item;
+                    });
+                    cart.checkout = {
+                        subtotal: summation(cart.data, 'total'),
+                        total: summation(cart.data, 'total'),
+                    };
+
+                    console.log('request => ', body);
+                    const updatedCart = cart._id === 'guest' ? cart : await cart.save();
+                    if (!updatedCart)
+                        throw new CustomError('500', 'failed', "Couldn't update the cart item");
+
+                    return res.status(200).json({
+                        success: true,
+                        data: {
+                            _id: bookId,
                             updatedItem,
                             checkout: updatedCart.checkout,
                         },
