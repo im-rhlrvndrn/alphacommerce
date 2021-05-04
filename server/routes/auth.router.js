@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const router = require('express').Router();
 const Users = require('../models/users.model');
 const Cart = require('../models/carts.model');
-const { CustomError, errorResponse } = require('../utils/errorHandlers');
+const { CustomError, errorResponse, successResponse } = require('../utils/errorHandlers');
 
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
@@ -36,9 +36,11 @@ router.post('/login', async (req, res) => {
         res.cookie('token', token, { path: '/', httpOnly: true });
         res.cookie('userId', user._id.toString(), { path: '/' });
 
-        return res
-            .status(200)
-            .json({ success: true, data: { token, user: { ...user._doc, password: null } } });
+        return successResponse(res, {
+            status: 200,
+            success: true,
+            data: { token, user: { ...user._doc, password: null } },
+        });
     } catch (error) {
         console.error(error);
         errorResponse(res, {
@@ -94,7 +96,24 @@ router.post('/signup', async (req, res) => {
 
         const savedUser = await newUser.save();
         await newCart.save();
-        return res.status(201).json({ success: true, data: savedUser });
+
+        // Create and assign a token
+        const token = jwt.sign(
+            { id: savedUser._id },
+            process.env.TOKEN_SECRET /*{ expiresIn: "24h" }*/
+        );
+        res.cookie('token', token, { path: '/', httpOnly: true });
+        res.cookie('userId', savedUser._id.toString(), { path: '/' });
+
+        return successResponse(res, {
+            status: 201,
+            success: true,
+            data: { token, user: { ...savedUser._doc, password: null } },
+            toast: {
+                status: 'success',
+                message: 'Created new user',
+            },
+        });
     } catch (error) {
         console.error(error);
         errorResponse(res, {
@@ -108,7 +127,15 @@ router.post('/signup', async (req, res) => {
 router.get('/logout', (req, res) => {
     res.cookie('token', 'loggedout');
     res.cookie('userId', 'loggedout');
-    res.status(200).json({ success: true, message: "You're logged out" });
+    return successResponse(res, {
+        status: 200,
+        success: true,
+        data: { message: "You're logged out" },
+        toast: {
+            status: 'success',
+            message: "You're logged out",
+        },
+    });
 });
 
 module.exports = router;

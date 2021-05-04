@@ -100,6 +100,7 @@ router
                     const { data, multi } = body;
 
                     const newCartItems = data.map(({ book, quantity, variant, total }) => ({
+                        _id: cart._id === 'guest' ? `${cart.data.length + 1}` : undefined,
                         book: book,
                         quantity: quantity || 1,
                         variant: variant,
@@ -110,13 +111,13 @@ router
                         if (
                             cart.data.findIndex(
                                 (item) =>
-                                    item._id === newCartItems[0].book._id &&
+                                    item.book._id === newCartItems[0].book._id &&
                                     item.variant.type === newCartItems[0].variant.type
                             ) !== -1
                         )
                             return res.status(200).json({
                                 success: true,
-                                datat: null,
+                                data: null,
                                 toast: {
                                     status: 'success',
                                     message: 'Already in cart',
@@ -125,6 +126,19 @@ router
 
                         cart.data = [...cart.data, newCartItems[0]];
                     } else {
+                        /*
+                            const userCart = [
+                                {_id:'book1', value: 'book1'},
+                                {_id:'book2', value: 'book2'},
+                                {_id:'book3', value: 'book3'}
+                            ];
+
+                            const guestCart = [
+                                {_id:'book1', value: 'bible1'},
+                                {_id:'book2', value: 'bible2'},
+                            ];
+                        */
+
                         // * @desc If guest cart contains the same cartItem in userCart data then it's updated w/ Guest Cart data
                         const updateGuestCartData = cart.data.map((item) => {
                             const index = newCartItems.findIndex(
