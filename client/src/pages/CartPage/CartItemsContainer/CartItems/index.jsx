@@ -7,7 +7,7 @@ import { CartItem } from '../../../../components/CartItem';
 export const CartItems = () => {
     const [{ cart }] = useDataLayer();
 
-    useEffect(() => {}, [cart.checkout]);
+    useEffect(() => {}, [cart]);
 
     return (
         <>

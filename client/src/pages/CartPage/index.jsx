@@ -1,5 +1,4 @@
 import axios from '../../axios';
-import { useHistory } from 'react-router';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthProvider';
 import { useTheme } from '../../context/ThemeProvider';
@@ -9,14 +8,13 @@ import { useDataLayer } from '../../context/DataProvider';
 import './cartpage.scss';
 
 // React components
+import { CartCheckout } from './CartCheckout';
 import { Modal } from '../../components/Modal';
 import { CartItemsContainer } from './CartItemsContainer';
 import { WishlistModal } from '../../components/WishlistModal';
-import { CartCheckout } from './CartCheckout';
 
 export const CartPage = () => {
     const { theme } = useTheme();
-    const history = useHistory();
     const [{ currentUser }] = useAuth();
     const [{ cart }, dataDispatch] = useDataLayer();
     const [wishlistModal, setWishlistModal] = useState({ isActive: false });

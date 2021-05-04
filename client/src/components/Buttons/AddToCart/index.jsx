@@ -1,3 +1,4 @@
+import axios from '../../../axios';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../../context/AuthProvider';
 import { useTheme } from '../../../context/ThemeProvider';
@@ -8,9 +9,6 @@ import './addtocart.scss';
 
 // React components
 import { QuantityButtons } from '../';
-import { findIndex } from '../../../utils/array_helpers';
-import axios from '../../../axios';
-import { getSelectedVariantPrice } from '../../../utils';
 
 export const AddToCart = ({ item, variant, style }) => {
     const { theme } = useTheme();
@@ -29,7 +27,7 @@ export const AddToCart = ({ item, variant, style }) => {
                 : true
         );
         console.log('---- Ran useEffect in AddToCart ----');
-    }, [cart, currentUser._id, variant.type]);
+    }, [cart.data, currentUser._id, variant.type]);
 
     const addToCart = async (items, multi = false) => {
         try {
@@ -59,7 +57,12 @@ export const AddToCart = ({ item, variant, style }) => {
                             {
                                 book: { ...item },
                                 quantity: 1,
-                                variant: item.variants[findIndex(item.variants, 'isSelected')],
+                                variant:
+                                    item.variants[
+                                        item.variants.findIndex(
+                                            (item) => item.type === variant.type
+                                        )
+                                    ],
                                 // total: getSelectedVariantPrice(item.variants),
                             },
                         ])

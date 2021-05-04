@@ -22,15 +22,11 @@ import { getDataFromLocalStorage, saveDataToLocalStorage } from '../hooks/useLoc
 */
 
 export const initialState = {
-    // users: getDataFromLocalStorage('users') || [
-    //     {
-    //         id: 'guest',
-    //         username: { text: 'guest' },
-    //         password: { text: 'guest123' },
-    //         full_name: { text: 'Guest user' },
-    //         email: null,
-    //     },
-    // ],
+    authModal: {
+        from: '/',
+        state: 'signup',
+        isActive: false,
+    },
     currentUser: getDataFromLocalStorage('currentUser') || {
         _id: 'guest',
         email: null,
@@ -44,24 +40,22 @@ export const reducer = (state, { type, payload }) => {
     console.log('auth dispatch:', { type, payload });
 
     switch (type) {
+        case 'UPDATE_AUTH_MODAL': {
+            return {
+                ...state,
+                authModal: payload.authModal,
+            };
+        }
         case 'SIGNUP':
             // * Setting up the new user
             saveDataToLocalStorage('currentUser', {
-                _id: payload._id,
-                full_name: payload.full_name,
-                email: payload.email,
-                password: payload.password,
-                avatar: payload.avatar,
+                ...payload,
             });
 
             return {
                 ...state,
                 currentUser: {
-                    _id: payload._id,
-                    email: payload.email,
-                    password: payload.password,
-                    full_name: payload.full_name,
-                    avatar: payload.avatar,
+                    ...payload,
                 },
             };
 

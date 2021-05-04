@@ -16,6 +16,9 @@
         @include tablet {
             font-size: 1.5rem;
         }
+        @include mobile {
+            font-size: 1.2rem;
+        }
 
         .floating-genre {
             left: 5%;

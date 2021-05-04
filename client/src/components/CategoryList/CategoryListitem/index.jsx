@@ -1,3 +1,4 @@
+import axios from '../../../axios';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { maxWords } from '../../../utils/math_helpers';
@@ -17,12 +18,12 @@ import { OutlinedWishListIcon } from '../../../react_icons/OutlinedWishListIcon'
 import './categorylistitem.scss';
 
 export const CategoryListItem = ({ item }) => {
-    const _window = useWindowSize();
     const { theme } = useTheme();
+    const _window = useWindowSize();
     const [{ currentUser }] = useAuth();
     const [{ cart }, dataDispatch] = useDataLayer();
-    const { _id, name, cover_image, variants, link, authors } = item;
     const [existsInCart, setExistsInCart] = useState(false);
+    const { _id, name, cover_image, variants, link, authors } = item;
     const [wishlistModal, setWishlistModal] = useState({ isActive: false });
 
     useEffect(() => {
@@ -34,8 +35,55 @@ export const CategoryListItem = ({ item }) => {
         );
     }, [cart, currentUser._id]);
 
-    const addToCart = (item) => dataDispatch({ type: 'ADD_TO_CART', payload: item });
-    const removeFromCart = (id) => dataDispatch({ type: 'REMOVE_FROM_CART', payload: id });
+    const addToCart = async (items, multi = false) => {
+        try {
+            const {
+                data: { success, data, toast },
+            } = await axios.post(`/carts/${cart._id}`, {
+                multi: false,
+                data: [...items],
+                type: 'ADD_TO_CART',
+                cart: cart._id === 'guest' ? cart : null,
+            });
+            if (success) dataDispatch({ type: 'ADD_TO_CART', payload: data });
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const removeFromCart = async (id) => {
+        try {
+            const cartItemIndex = cart.data.findIndex(
+                (item) => item.book._id === id && item.variant.type === 'paperback'
+            );
+            if (cartItemIndex === -1) return; // ! Error Handling with toast that says "This item doesn't exist in cart"
+
+            const {
+                data: {
+                    success,
+                    data: { _id, variant: variantResponse, checkout },
+                    toast,
+                },
+            } = await axios.post(`/carts/${cart._id}`, {
+                variant:
+                    item.variants[item.variants.findIndex((item) => item.type === 'paperback')],
+                _id: id,
+                type: 'REMOVE_FROM_CART',
+                cart: cart._id === 'guest' ? cart : null,
+            });
+            if (success)
+                dataDispatch({
+                    type: 'REMOVE_FROM_CART',
+                    payload: {
+                        _id,
+                        variant: variantResponse,
+                        checkout,
+                    },
+                });
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     return (
         <>
@@ -49,14 +97,18 @@ export const CategoryListItem = ({ item }) => {
                         onClick={() =>
                             existsInCart
                                 ? removeFromCart(_id)
-                                : addToCart({
-                                      _id,
-                                      name,
-                                      cover_image,
-                                      quantity: 1,
-                                      price: variants[0].price,
-                                      totalPrice: variants[0].price,
-                                  })
+                                : addToCart([
+                                      {
+                                          book: { ...item },
+                                          quantity: 1,
+                                          variant:
+                                              item.variants[
+                                                  item.variants.findIndex(
+                                                      (item) => item.type === 'paperback'
+                                                  )
+                                              ],
+                                      },
+                                  ])
                         }
                     >
                         <CartIcon

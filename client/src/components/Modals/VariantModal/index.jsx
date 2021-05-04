@@ -1,10 +1,10 @@
+import { useEffect } from 'react';
 import axios from '../../../axios';
 import { useTheme } from '../../../context/ThemeProvider';
 import { useDataLayer } from '../../../context/DataProvider';
 
 // styles
 import './variantmodal.scss';
-import { useEffect } from 'react';
 
 export const VariantModal = ({
     selectedVariant: { cartItemId, bookId, variant },

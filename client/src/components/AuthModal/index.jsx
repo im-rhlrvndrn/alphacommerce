@@ -38,13 +38,7 @@ export const AuthModal = ({ auth = 'signup', setAuthModal }) => {
                 if (success) {
                     authDispatch({
                         type: 'LOGIN',
-                        payload: {
-                            _id: user._id,
-                            email: user.email,
-                            password: user.password,
-                            full_name: user.full_name,
-                            avatar: user.avatar,
-                        },
+                        payload: { ...user },
                     });
                     // ! Make another API call to update the cart details
                     const {
@@ -55,17 +49,28 @@ export const AuthModal = ({ auth = 'signup', setAuthModal }) => {
                         type: 'ADD_TO_CART',
                         cart: null,
                     });
-                    if (success)
-                        dataDispatch({
-                            type: 'SET_CART',
-                            payload: {
-                                cart: { ...user.cart, data: data.data, checkout: data.checkout },
-                            },
-                        });
+                    if (success) {
+                        const {
+                            data: { success, data, toast },
+                        } = await axios.get(`carts/${user.cart._id}`);
+                        if (success)
+                            dataDispatch({
+                                type: 'SET_CART',
+                                payload: {
+                                    cart: {
+                                        ...data.cart,
+                                    },
+                                },
+                            });
+                    }
                 }
             } else if (action === 'signup') {
                 const {
-                    data: { success, data },
+                    data: {
+                        success,
+                        data: { token, user },
+                        toast,
+                    },
                 } = await axios.post('/auth/signup', {
                     full_name: authData.auth_fullname,
                     email: authData.auth_email,
@@ -73,29 +78,35 @@ export const AuthModal = ({ auth = 'signup', setAuthModal }) => {
                     avatar: {},
                 });
 
-                console.log('Signup data: ', { success, data });
+                console.log('Signup data: ', { success, data: { token, user }, toast });
                 if (success) {
                     authDispatch({
                         type: 'SIGNUP',
-                        payload: {
-                            id: data._id,
-                            email: data.email,
-                            full_name: data.full_name,
-                            username: data.username,
-                            password: data.password,
-                        },
+                        payload: { ...user },
                     });
-                    dataDispatch({ type: 'SET_CART', payload: { cart: data.cart } });
+                    const {
+                        data: { success, data, toast },
+                    } = await axios.post(`carts/${user.cart}`, {
+                        multi: true,
+                        data: [...cart.data],
+                        type: 'ADD_TO_CART',
+                        cart: null,
+                    });
+                    if (success) {
+                        const {
+                            data: { success, data, toast },
+                        } = await axios.get(`carts/${user.cart}`);
+                        if (success)
+                            dataDispatch({
+                                type: 'SET_CART',
+                                payload: {
+                                    cart: {
+                                        ...data.cart,
+                                    },
+                                },
+                            });
+                    }
                 }
-                // dataDispatch({
-                //     type: 'SETUP_NEW_USER',
-                //     payload: {
-                //         _id: response.data.data._id,
-                //         data: cart,
-                //         user: response.data.data.user,
-                //         wishlists: wishlists,
-                //     },
-                // });
             } else {
                 return setAuthModal((prevState) => ({
                     ...prevState,

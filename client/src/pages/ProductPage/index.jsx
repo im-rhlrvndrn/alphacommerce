@@ -1,5 +1,5 @@
 import axios from '../../axios';
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthProvider';
 import { useTheme } from '../../context/ThemeProvider';
@@ -52,7 +52,7 @@ export const ProductPage = () => {
                 book?.variants[findIndex(book?.variants, 'isSelected')].type
             }"----`
         );
-    }, [book, currentUser]);
+    }, [book?.variants, currentUser]);
 
     useEffect(() => {
         fetchBookDetails();
@@ -91,7 +91,6 @@ export const ProductPage = () => {
                                     }`}
                                     style={{
                                         color: theme.color,
-                                        margin: '0 1rem 0 0',
                                         backgroundColor: theme.light_background,
                                         border: variant.isSelected
                                             ? `2px solid ${theme.constants.primary}`

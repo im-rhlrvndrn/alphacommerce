@@ -1,22 +1,26 @@
 import axios from '../../axios';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useAuth } from '../../context/AuthProvider';
-import { useHistory, useParams } from 'react-router';
 import { useTheme } from '../../context/ThemeProvider';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useDataLayer } from '../../context/DataProvider';
+
+// React Components
 import { WishlistItem } from '../../components/WishlistItem';
 
 export const Wishlist = () => {
     const { theme } = useTheme();
-    const history = useHistory();
+    const navigate = useNavigate();
     const urlParams = useParams();
     const [{ currentUser }] = useAuth();
     const [{ wishlists }, dataDispatch] = useDataLayer();
-    const [wishList, setWishList] = useState({});
+    const wishlistIndex = wishlists?.findIndex((item) => item?._id === urlParams?.id);
 
     const renderWishListItems = () =>
-        wishList?.data?.length
-            ? wishList?.data?.map((wishListItem) => <WishlistItem item={wishListItem.book} />)
+        wishlists[wishlistIndex]?.data?.length
+            ? wishlists[wishlistIndex]?.data?.map((wishListItem) => (
+                  <WishlistItem item={wishListItem?.book} />
+              ))
             : 'No items in wishlist';
 
     const fetchWishlistItems = async () => {
@@ -31,21 +35,21 @@ export const Wishlist = () => {
                     type: 'UPDATE_WISHLIST',
                     payload: { wishlist: data.wishlist },
                 });
-                console.log(`---Fetched wishlist---`, data.wishlist);
-                setWishList((prevState) => data.wishlist);
+                // console.log(`---Fetched wishlist---`, data.wishlist);
+                // setWishList((prevState) => data.wishlist);
             }
         } catch (error) {
             console.error(error);
         }
     };
 
-    useEffect(() => {}, [wishlists, currentUser]);
+    useEffect(() => {}, [wishlists.data, currentUser]);
 
     useEffect(() => {
         fetchWishlistItems();
     }, []);
 
-    console.log('Wishlist FrontEnd data => ', wishList);
+    console.log('Wishlist FrontEnd data => ', wishlists);
 
     return (
         <>
@@ -55,7 +59,7 @@ export const Wishlist = () => {
                         className='font-md uppercase font-weight-md'
                         style={{ color: theme.color }}
                     >
-                        {wishList?.name?.name}
+                        {wishlists[wishlistIndex]?.name?.name}
                     </div>
                     <div className='cart-items' style={{ color: theme.color }}>
                         {renderWishListItems()}
@@ -63,7 +67,7 @@ export const Wishlist = () => {
                     <button
                         className='continue-shopping mr-2'
                         style={{ backgroundColor: theme.light_background, color: theme.color }}
-                        onClick={() => history.push('/')}
+                        onClick={() => navigate('/')}
                     >
                         Add more to wishlist
                     </button>
@@ -92,7 +96,9 @@ export const Wishlist = () => {
                     >
                         <div className='checkout-group-row flex flex-justify-sb mb-1'>
                             <div className='heading'>total</div>
-                            <div className='price'>₹ {wishList?.estimated_price}</div>
+                            <div className='price'>
+                                ₹ {wishlists[wishlistIndex]?.estimated_price}
+                            </div>
                         </div>
                     </div>
                     <button

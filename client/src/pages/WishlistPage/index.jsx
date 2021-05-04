@@ -1,17 +1,19 @@
+import axios from '../../axios';
+import Cookies from 'js-cookie';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
 import { useAuth } from '../../context/AuthProvider';
 import { useTheme } from '../../context/ThemeProvider';
 import { useDataLayer } from '../../context/DataProvider';
 
 // styles
 import './wishlistpage.scss';
-import axios from '../../axios';
 
 export const WishlistPage = () => {
     const { theme } = useTheme();
-    const history = useHistory();
-    const [{ currentUser }] = useAuth();
+    const navigate = useNavigate();
+    // const cookies = Cookies();
+    const [{ currentUser }, authDispatch] = useAuth();
     const [{ wishlists }, dataDispatch] = useDataLayer();
     const [wish_lists, setWishlists] = useState([]);
 
@@ -38,7 +40,20 @@ export const WishlistPage = () => {
     useEffect(() => {}, [wishlists, currentUser]);
 
     useEffect(() => {
-        fetchWishlists();
+        if (Cookies.get('userId') !== 'loggedout') fetchWishlists();
+        else {
+            navigate('/');
+            // authDispatch({
+            //     type: 'UPDATE_AUTH_MODAL',
+            //     payload: {
+            //         authModal: {
+            //             isActive: true,
+            //             from: '/wishlists',
+            //             state: 'login',
+            //         },
+            //     },
+            // });
+        }
     }, []);
 
     return (

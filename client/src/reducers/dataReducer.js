@@ -280,12 +280,12 @@ export const reducer = (state, { type, payload }) => {
             const { wishlistId, wishlist } = payload;
             updatedWishlist = state.wishlists.map((wishlistItem) => {
                 if (wishlistItem._id === wishlistId) {
-                    console.log('Wishlist Item => ', wishlistItem);
+                    console.log('Wishlist Item => ', { wishlistId, wishlist });
 
                     return {
                         ...wishlistItem,
                         data: wishlistItem.data.filter(
-                            (wishlistItem) => wishlistItem.book._id !== wishlist.book._id
+                            (wishlistItem) => wishlistItem.book._id !== wishlist._id
                         ),
                     };
                 }
@@ -295,7 +295,7 @@ export const reducer = (state, { type, payload }) => {
             saveDataToLocalStorage('wishlists', updatedWishlist);
             return {
                 ...state,
-                wishlists: updatedWishlist,
+                wishlists: [...updatedWishlist],
             };
         }
 

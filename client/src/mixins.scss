@@ -10,6 +10,12 @@ $sm-text: 0.8rem;
 $md-text: 1rem;
 $lg-text: 1.5rem;
 
+@mixin lg-tablet {
+    @media screen and (max-width: 1024px) {
+        @content;
+    }
+}
+
 @mixin tablet {
     @media screen and (max-width: 768px) {
         @content;

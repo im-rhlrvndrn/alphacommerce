@@ -1,4 +1,4 @@
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../../context/ThemeProvider';
 import { useDataLayer } from '../../../context/DataProvider';
 
@@ -6,7 +6,7 @@ import { useDataLayer } from '../../../context/DataProvider';
 import { CartItems } from './CartItems';
 
 export const CartItemsContainer = () => {
-    const history = useHistory();
+    const navigate = useNavigate();
     const { theme } = useTheme();
     const [{ cart }] = useDataLayer();
 
@@ -35,7 +35,7 @@ export const CartItemsContainer = () => {
                     backgroundColor: theme.light_background,
                     color: theme.color,
                 }}
-                onClick={() => history.push('/')}
+                onClick={() => navigate('/')}
             >
                 Continue Shopping
             </button>

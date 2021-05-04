@@ -1,28 +1,90 @@
-.wishlistItem {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
+@import '../../mixins.scss';
 
-    img {
-        width: 80px;
-        height: 110px;
-        object-fit: cover;
-        object-position: center;
-        margin-right: 2rem;
-        box-shadow: 5px 5px 15px 0 rgba(0, 0, 0, 0.1);
+.wishlistItem_wrapper {
+    // display: flex;
+    // align-items: center;
+    // min-height: 300px;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    // border: 1px solid white;
+
+    .wishlistItem_container {
+        display: flex;
+        // padding: 4rem 0;
+        justify-content: space-between;
+
+        .wishlistItem_details {
+            flex: 0.7;
+            padding-right: 2rem;
+            @include mobile {
+                padding-right: 1rem;
+            }
+
+            .name {
+                flex-grow: 1;
+            }
+
+            .total_price {
+                margin-top: 1rem;
+                font-weight: 600;
+                @include mobile {
+                    margin: 0;
+                }
+            }
+
+            .quantity_container {
+                display: flex;
+                @include mobile {
+                    flex-direction: column;
+                }
+
+                button.variant {
+                    background-color: transparent;
+                    padding: 0 2rem;
+
+                    &:last-of-type {
+                        margin-left: 1rem;
+                        @include tablet {
+                            margin: 0 0 0 1rem;
+                        }
+                        @include mobile {
+                            margin: 1rem 0 0 0;
+                        }
+                    }
+                }
+
+                .quantityBtns {
+                    margin-top: 2rem;
+                    width: 200px;
+                    @include tablet {
+                        width: 50%;
+                    }
+                    @include mobile {
+                        width: 100%;
+                    }
+                }
+                input {
+                    padding: 0;
+                    text-align: center;
+                    background-color: transparent;
+                    width: 50px;
+                }
+            }
+        }
+
+        img {
+            flex: 0.3;
+            margin: 0;
+            height: 170px;
+            max-width: 140px;
+            object-fit: contain;
+            object-position: center;
+            box-shadow: 5px 5px 15px 0 rgba(0, 0, 0, 0.1);
+        }
     }
 
-    &_name {
-        flex-grow: 1;
-        font-weight: 600;
-    }
-
-    &_price {
-        margin-right: 2rem;
-    }
-
-    .remove-item {
-        padding: 0 1rem;
+    .remove_item {
+        padding: 0 2rem;
         background-color: transparent;
     }
 }

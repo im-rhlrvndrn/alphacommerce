@@ -50,16 +50,13 @@ export const NavAvatar = ({
 
 export const NavList = ({ listItems = ['Login', 'Signup'] }) => {
     /*
-
 * structure for nav items
-
     const listItems = [
         {
             name: 'Auth',
             children: [ { name: 'Login' }, { name: 'Signup' } ]
         },
     ]
-
 */
 
     return (

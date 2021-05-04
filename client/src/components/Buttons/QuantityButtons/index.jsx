@@ -81,7 +81,7 @@ export const QuantityButtons = ({ productId, variant }) => {
             (item) => item.book._id === productId && item.variant.type === variant.type
         );
         setQuantity((prevState) => cart.data[cartItemIndex].quantity);
-    }, [cart]);
+    }, [cart.data, variant.type]);
 
     return (
         <div className='quantityBtns'>

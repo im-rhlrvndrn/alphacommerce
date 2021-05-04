@@ -23,38 +23,22 @@ export const CartItem = ({ item }) => {
     const [variantModal, setVariantModal] = useState({ isActive: false });
 
     const removeFromCart = async (id) => {
-        if (cart._id === 'guest') {
-            const {
-                data: {
-                    success,
-                    data: { _id, variant, checkout },
-                    toast,
-                },
-            } = await axios.delete(`/carts/${cart._id}`, {
-                variant,
-                _id: id,
-                type: 'REMOVE_FROM_CART',
-                cart: cart._id === 'guest' ? cart : null,
-            });
-            if (success)
-                dataDispatch({
-                    type: 'REMOVEFROMCART',
-                    payload: {
-                        _id,
-                        variant,
-                        checkout: checkout,
-                    },
-                });
-        } else {
+        const {
+            data: { success, data, toast },
+        } = await axios.post(`/carts/${cart._id}`, {
+            variant,
+            _id: id,
+            type: 'REMOVE_FROM_CART',
+            cart: cart._id === 'guest' ? cart : null,
+        });
+        console.log('Delete response => ', { success, data, toast });
+        if (success) {
             dataDispatch({
-                type: 'REMOVEFROMCART',
+                type: 'REMOVE_FROM_CART',
                 payload: {
-                    _id: id,
-                    variant,
-                    checkout: {
-                        subtotal: +cart.checkout.subtotal - +total,
-                        total: +cart.checkout.total - +total,
-                    },
+                    _id: data._id,
+                    variant: data.variant,
+                    checkout: data.checkout,
                 },
             });
         }

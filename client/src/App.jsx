@@ -1,9 +1,10 @@
 import axios from './axios';
+import Cookies from 'js-cookie';
 import { useEffect } from 'react';
 import { useAuth } from './context/AuthProvider';
 import { useDataLayer } from './context/DataProvider';
 import { useLocalStorage } from './hooks/useLocalStorage';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 // Styles
 import './global.scss';
@@ -16,10 +17,11 @@ import { Wishlist } from './pages/Wishlist';
 import { ListingPage } from './pages/ListingPage';
 import { ProductPage } from './pages/ProductPage';
 import { WishlistPage } from './pages/WishlistPage';
-import Cookies from 'js-cookie';
+import { Modal } from './components/Modal';
+import { AuthModal } from './components/AuthModal';
 
 export const App = () => {
-    const [{ currentUser }, authDispatch] = useAuth();
+    const [{ currentUser, authModal }, authDispatch] = useAuth();
     const [{ books, authors, genres }, dataDispatch] = useDataLayer();
     const [saveToLocalStorage, getFromLocalStorage] = useLocalStorage();
 
@@ -100,37 +102,26 @@ export const App = () => {
         if (!getFromLocalStorage('wishlists')) saveToLocalStorage('wishlists', []);
 
         getBooks();
-
-        // fetch('/api/products')
-        //     .then((res) => res.json())
-        //     .then((response) =>
-        //         dataDispatch({ type: 'UPDATEPRODUCTS', payload: response.products })
-        //     );
-
-        // fetch('/api/genres')
-        //     .then((res) => res.json())
-        //     .then((response) => dataDispatch({ type: 'SET_GENRES', payload: response.genres }));
-
-        // fetch('/api/authors')
-        //     .then((res) => res.json())
-        //     .then((response) => dataDispatch({ type: 'SET_AUTHORS', payload: response.authors }));
-
-        // document.title('TheBookStore');
     }, []);
 
     return (
         <>
             <Router>
                 <Nav />
-                <Switch>
-                    <Route exact path='/' component={HomePage} />
-                    <Route exact path='/p' component={ListingPage} />
-                    <Route exact path='/p/:id' component={ProductPage} />
-                    <Route exact path='/cart' component={CartPage} />
-                    <Route exact path='/wishlists' component={WishlistPage} />
-                    <Route exact path='/wishlists/:id' component={Wishlist} />
-                </Switch>
+                <Routes>
+                    <Route exact path='/' element={<HomePage />} />
+                    <Route exact path='/p' element={<ListingPage />} />
+                    <Route exact path='/p/:id' element={<ProductPage />} />
+                    <Route exact path='/cart' element={<CartPage />} />
+                    <Route exact path='/wishlists' element={<WishlistPage />} />
+                    <Route exact path='/wishlists/:id' element={<Wishlist />} />
+                </Routes>
             </Router>
+            {authModal.isActive && (
+                <Modal>
+                    <AuthModal />
+                </Modal>
+            )}
         </>
     );
 };
