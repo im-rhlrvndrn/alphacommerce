@@ -24,7 +24,6 @@ export const ListingPage = () => {
     useEffect(() => {}, [genreFilters, authorFilters, priceFilter]);
 
     useEffect(() => {
-        console.log('---- Listing page is mounted for the first time ----');
         search = generateSearchParams(search);
         if (search.genre && !genreFilters.includes(deSlugify(search.genre))) {
             dataDispatch({ type: 'FILTER_BY_GENRE', payload: deSlugify(search.genre) });
@@ -35,8 +34,6 @@ export const ListingPage = () => {
             left: 0,
             behavior: 'smooth',
         });
-
-        return () => console.log('---- Listing page is unmounted ----');
     }, []);
 
     // console.log('filteredProducts', filteredProducts);

@@ -1,6 +1,7 @@
 .listing-container {
     display: flex;
     flex-wrap: wrap;
+    min-height: 100vh;
 
     .card {
         margin: 0 4rem 4rem 0;

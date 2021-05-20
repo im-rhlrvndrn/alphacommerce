@@ -25,6 +25,7 @@ export const initialState = {
     priceFilter: '',
     genreFilters: [],
     authorFilters: [],
+    toasts: [],
     books: booksFromLocalStorage || [],
     cart: getDataFromLocalStorage('cart') || {
         _id: 'guestCart',
@@ -57,6 +58,27 @@ export const reducer = (state, { type, payload }) => {
         }, []);
 
     switch (type) {
+        case 'SET_TOAST': {
+            const { data } = payload;
+            const _id = v4();
+
+            return {
+                ...state,
+                toasts: [...state.toasts, { _id, ...data }],
+            };
+        }
+
+        case 'UNSET_TOAST': {
+            const {
+                data: { toastId },
+            } = payload;
+
+            return {
+                ...state,
+                toasts: state.toasts.filter((toast) => toast._id !== toastId),
+            };
+        }
+
         case 'SET_GENRES': {
             return { ...state, genres: eliminateDuplicates([...state.genres, ...payload]) };
         }

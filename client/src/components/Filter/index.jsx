@@ -48,7 +48,7 @@ export const Filter = () => {
                     <Checkbox
                         key={author.id}
                         dispatchType='FILTER_BY_AUTHOR'
-                        data={{ name: author }}
+                        data={{ name: author, type: 'author' }}
                     />
                 ));
 
@@ -57,7 +57,7 @@ export const Filter = () => {
                     <Checkbox
                         key={genre.id}
                         dispatchType='FILTER_BY_GENRE'
-                        data={{ name: genre }}
+                        data={{ name: genre, type: 'genre' }}
                     />
                 ));
 
@@ -65,8 +65,8 @@ export const Filter = () => {
                 return (
                     <Radio
                         data={[
-                            { id: v4(), name: 'low-to-high', isChecked: false },
-                            { id: v4(), name: 'high-to-low', isChecked: false },
+                            { id: v4(), name: 'low-to-high', isChecked: false, type: 'price' },
+                            { id: v4(), name: 'high-to-low', isChecked: false, type: 'price' },
                         ]}
                         dispatchType='SORT_BY_PRICE'
                     />

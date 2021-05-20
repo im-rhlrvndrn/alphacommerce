@@ -7,6 +7,7 @@ import { ThemeProvider } from './context/ThemeProvider';
 // React components
 import { App } from './App';
 import { makeServer } from './api/mockServer';
+import { ModalProvider } from './context/ModalProvider';
 
 // if (process.env.NODE_ENV === 'development') {
 //     makeServer();
@@ -16,9 +17,11 @@ ReactDOM.render(
     <React.StrictMode>
         <AuthProvider>
             <DataProvider>
-                <ThemeProvider>
-                    <App />
-                </ThemeProvider>
+                <ModalProvider>
+                    <ThemeProvider>
+                        <App />
+                    </ThemeProvider>
+                </ModalProvider>
             </DataProvider>
         </AuthProvider>
     </React.StrictMode>,

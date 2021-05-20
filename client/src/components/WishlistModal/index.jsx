@@ -7,13 +7,16 @@ import { useDataLayer } from '../../context/DataProvider';
 
 // styles
 import './wishlistmodal.scss';
+import { withModalOverlay } from '../../hoc/withModalOverlay';
+import { useModal } from '../../context/ModalProvider';
 
 // * The items prop is an Array so that you can pass multiple items(books) for adding a whole list of items
 // * For example => move an entire cart and create a wishlist out of it in one go
-export const WishlistModal = ({ setIsModalActive, items }) => {
+export const WishlistModal = ({ modal, dispatchType, items }) => {
     const { theme } = useTheme();
     const wishlistRef = useRef(null);
     const [{ currentUser }] = useAuth();
+    const [_, modalDispatch] = useModal();
     const [filter, setFilter] = useState('');
     const [{ wishlists }, dataDispatch] = useDataLayer();
     const [newWishlistRef, setNewWishlistRef] = useState(false);
@@ -21,7 +24,6 @@ export const WishlistModal = ({ setIsModalActive, items }) => {
     const addNewWishlist = () => setNewWishlistRef((prevState) => !prevState);
 
     const addToWishlist = async (wishlistId) => {
-        setIsModalActive((prevState) => !prevState);
         const {
             data: { success, data, toast },
         } = await axios.post(`/wishlists/${wishlistId}`, {
@@ -31,7 +33,7 @@ export const WishlistModal = ({ setIsModalActive, items }) => {
 
         console.log('API add to wishlist => ', data);
 
-        if (success)
+        if (success) {
             dataDispatch({
                 type: 'ADD_TO_WISHLIST',
                 payload: {
@@ -39,6 +41,9 @@ export const WishlistModal = ({ setIsModalActive, items }) => {
                     data: [{ book: data.wishlist }],
                 },
             });
+        }
+
+        modalDispatch({ type: 'UPDATE_WISHLIST_MODAL' });
     };
 
     const renderWishlistNames = (filter = '') => {
@@ -76,8 +81,7 @@ export const WishlistModal = ({ setIsModalActive, items }) => {
                         user: currentUser._id,
                         name: { name: event.target.textContent },
                         cover_image: {
-                            url:
-                                'https://images.pexels.com/photos/2685319/pexels-photo-2685319.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+                            url: 'https://images.pexels.com/photos/2685319/pexels-photo-2685319.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
                         },
                         estimated_price: 0,
                         data: [],
@@ -138,3 +142,6 @@ export const WishlistModal = ({ setIsModalActive, items }) => {
         </div>
     );
 };
+
+const EnhancedWishlistModal = withModalOverlay(WishlistModal);
+export { EnhancedWishlistModal };

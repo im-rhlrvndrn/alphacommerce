@@ -39,7 +39,10 @@ export const AddToCart = ({ item, variant, style }) => {
                 type: 'ADD_TO_CART',
                 cart: cart._id === 'guest' ? cart : null,
             });
-            if (success) dataDispatch({ type: 'ADD_TO_CART', payload: data });
+            if (success) {
+                dataDispatch({ type: 'ADD_TO_CART', payload: data });
+                dataDispatch({ type: 'SET_TOAST', payload: { data: toast } });
+            }
         } catch (error) {
             console.error(error);
         }

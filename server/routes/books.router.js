@@ -1,6 +1,5 @@
-const express = require('express');
+const router = require('express').Router();
 const Books = require('../models/books.model');
-const router = express.Router();
 const data = require('../data');
 const { CustomError, errorResponse, successResponse } = require('../utils/errorHandlers');
 
@@ -11,7 +10,7 @@ router
         try {
             const returnedBooks = await Books.find({});
             // if (genre) await returnedBooks.find({ genres: { $in: [genre] } });
-            res.status(200).json({ success: true, books: returnedBooks });
+            return res.status(200).json({ success: true, books: returnedBooks });
         } catch (error) {
             console.error(error);
             errorResponse(res, {

@@ -1,16 +1,14 @@
 import axios from '../../axios';
-import { useEffect, useState } from 'react';
 import { maxWords } from '../../utils/math_helpers';
 import { useTheme } from '../../context/ThemeProvider';
+import { useModal } from '../../context/ModalProvider';
 import { useDataLayer } from '../../context/DataProvider';
 
 // styles
 import './cartItem.scss';
 
 // React components
-import { Modal } from '../Modal';
 import { AddToCart } from '../Buttons';
-import { VariantModal } from '../Modals/VariantModal';
 
 export const CartItem = ({ item }) => {
     const {
@@ -18,9 +16,9 @@ export const CartItem = ({ item }) => {
         variant,
         total,
     } = item;
+    const [_, modalDispatch] = useModal();
     const { theme } = useTheme();
     const [{ cart }, dataDispatch] = useDataLayer();
-    const [variantModal, setVariantModal] = useState({ isActive: false });
 
     const removeFromCart = async (id) => {
         const {
@@ -31,7 +29,6 @@ export const CartItem = ({ item }) => {
             type: 'REMOVE_FROM_CART',
             cart: cart._id === 'guest' ? cart : null,
         });
-        console.log('Delete response => ', { success, data, toast });
         if (success) {
             dataDispatch({
                 type: 'REMOVE_FROM_CART',
@@ -41,6 +38,7 @@ export const CartItem = ({ item }) => {
                     checkout: data.checkout,
                 },
             });
+            dataDispatch({ type: 'SET_TOAST', payload: { data: toast } });
         }
     };
 
@@ -63,10 +61,19 @@ export const CartItem = ({ item }) => {
                                     color: theme.dark_background,
                                 }}
                                 onClick={() =>
-                                    setVariantModal((prevState) => ({
-                                        ...prevState,
-                                        isActive: !prevState.isActive,
-                                    }))
+                                    modalDispatch({
+                                        type: 'UPDATE_VARIANT_MODAL',
+                                        payload: {
+                                            state: {
+                                                selectedVariant: {
+                                                    cartItemId: item._id,
+                                                    variant,
+                                                    bookId: _id,
+                                                },
+                                                variants: item.book.variants,
+                                            },
+                                        },
+                                    })
                                 }
                             >
                                 Variant: <strong className='font-weight-md'>{variant?.type}</strong>
@@ -85,15 +92,6 @@ export const CartItem = ({ item }) => {
                     </button>
                 </div>
             </div>
-            {variantModal.isActive && (
-                <Modal setIsModalActive={setVariantModal}>
-                    <VariantModal
-                        selectedVariant={{ cartItemId: item._id, variant, bookId: _id }}
-                        variants={item.book.variants}
-                        setVariantModal={setVariantModal}
-                    />
-                </Modal>
-            )}
         </>
     );
 };

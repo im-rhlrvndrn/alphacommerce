@@ -2,6 +2,7 @@ import axios from './axios';
 import Cookies from 'js-cookie';
 import { useEffect } from 'react';
 import { useAuth } from './context/AuthProvider';
+import { useModal } from './context/ModalProvider';
 import { useDataLayer } from './context/DataProvider';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
@@ -17,12 +18,15 @@ import { Wishlist } from './pages/Wishlist';
 import { ListingPage } from './pages/ListingPage';
 import { ProductPage } from './pages/ProductPage';
 import { WishlistPage } from './pages/WishlistPage';
-import { Modal } from './components/Modal';
-import { AuthModal } from './components/AuthModal';
+import { EnhancedVariantModal as VariantModal } from './components/Modals/VariantModal';
+import { EnhancedAuthModal as AuthModal } from './components/AuthModal';
+import { EnhancedWishlistModal as WishlistModal } from './components/WishlistModal';
+import { Toast } from './components/Toast';
 
 export const App = () => {
+    const [{ wishlist, auth, variant: variantModal }, modalDispatch] = useModal();
     const [{ currentUser, authModal }, authDispatch] = useAuth();
-    const [{ books, authors, genres }, dataDispatch] = useDataLayer();
+    const [{ books, authors, genres, toasts }, dataDispatch] = useDataLayer();
     const [saveToLocalStorage, getFromLocalStorage] = useLocalStorage();
 
     const getBooks = async () => {
@@ -56,6 +60,7 @@ export const App = () => {
             });
         } catch (error) {
             console.error(error);
+            console.log(error.toJSON());
         }
     };
 
@@ -117,11 +122,20 @@ export const App = () => {
                     <Route exact path='/wishlists/:id' element={<Wishlist />} />
                 </Routes>
             </Router>
-            {authModal.isActive && (
-                <Modal>
-                    <AuthModal />
-                </Modal>
+            {auth.isActive && (
+                <AuthModal
+                    auth={auth.state.authState}
+                    modal={auth}
+                    dispatchType='UPDATE_AUTH_MODAL'
+                />
             )}
+            {wishlist.isActive && (
+                <WishlistModal modal={wishlist} dispatchType='UPDATE_WISHLIST_MODAL' />
+            )}
+            {variantModal.isActive && (
+                <VariantModal modal={variantModal} dispatchType='UPDATE_VARIANT_MODAL' />
+            )}
+            {toasts?.length > 0 && <Toast />}
         </>
     );
 };

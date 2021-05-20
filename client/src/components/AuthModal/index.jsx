@@ -9,9 +9,12 @@ import { InputGroup } from '../InputGroup';
 
 // styles
 import './authmodal.scss';
+import { useModal } from '../../context/ModalProvider';
+import { withModalOverlay } from '../../hoc/withModalOverlay';
 
-export const AuthModal = ({ auth = 'signup', setAuthModal }) => {
+export const AuthModal = ({ auth = 'signup', modal, dispatchType }) => {
     const { theme } = useTheme();
+    const [_, modalDispatch] = useModal();
     const [{ currentUser }, authDispatch] = useAuth();
     const [{ cart, wishlists }, dataDispatch] = useDataLayer();
     const [authState, setAuthState] = useState(auth);
@@ -107,14 +110,9 @@ export const AuthModal = ({ auth = 'signup', setAuthModal }) => {
                             });
                     }
                 }
-            } else {
-                return setAuthModal((prevState) => ({
-                    ...prevState,
-                    isActive: !prevState.isActive,
-                }));
             }
 
-            return setAuthModal((prevState) => ({ ...prevState, isActive: !prevState.isActive }));
+            modalDispatch({ type: 'UPDATE_AUTH_MODAL' });
         } catch (error) {
             console.log('Error => ', error.response);
         }
@@ -213,3 +211,6 @@ export const AuthModal = ({ auth = 'signup', setAuthModal }) => {
         </div>
     );
 };
+
+const EnhancedAuthModal = withModalOverlay(AuthModal);
+export { EnhancedAuthModal };

@@ -34,6 +34,19 @@ app.get('/', (req, res) => {
 
 app.listen(PORT, () => console.log(`Server is running on PORT ${PORT}`));
 
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true }, () =>
-    console.log('MongoDB connection established')
-);
+(async () => {
+    try {
+        await mongoose.connect(
+            process.env.MONGODB_URI,
+            {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+                useCreateIndex: true,
+                useFindAndModify: false,
+            },
+            () => console.log('MongoDB connection established')
+        );
+    } catch (error) {
+        console.error('Error connecting to MongoDB => ', error);
+    }
+})();

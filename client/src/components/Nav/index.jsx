@@ -32,12 +32,7 @@ export const Nav = () => {
     return (
         <>
             {/* <MobileNav /> */}
-            <DesktopNav setAuthModal={setAuthModal} />
-            {authModal.isActive && (
-                <Modal setIsModalActive={setAuthModal}>
-                    <AuthModal auth={authModal.authState} setAuthModal={setAuthModal} />
-                </Modal>
-            )}
+            <DesktopNav />
         </>
     );
 };

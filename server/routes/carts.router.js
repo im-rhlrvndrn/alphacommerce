@@ -184,7 +184,6 @@ router
                 case 'REMOVE_FROM_CART': {
                     const { _id, variant } = body;
 
-                    console.log('[REMOVE] before => ', { cartData: cart.data });
                     cart.data = cart.data.filter(
                         (item) =>
                             item.book._id.toString() !== _id ||
@@ -196,7 +195,6 @@ router
                     };
 
                     const updatedCart = cart._id === 'guest' ? cart : await cart.save();
-                    console.log('[REMOVE] after => ', { cartData: cart.data });
                     return res.status(200).json({
                         success: true,
                         data: {
@@ -284,7 +282,6 @@ router
                                         )
                                     ].price,
                             };
-                            console.log('updated item => ', updatedItem);
                             return updatedItem;
                         }
                         return item;
@@ -294,7 +291,6 @@ router
                         total: summation(cart.data, 'total'),
                     };
 
-                    console.log('request => ', body);
                     const updatedCart = cart._id === 'guest' ? cart : await cart.save();
                     if (!updatedCart)
                         throw new CustomError('500', 'failed', "Couldn't update the cart item");
@@ -308,7 +304,7 @@ router
                         },
                         toast: {
                             status: 'success',
-                            message: 'Updated cart item',
+                            message: `Updated variant: ${updatedItem.variant.type}`,
                         },
                     });
                 }

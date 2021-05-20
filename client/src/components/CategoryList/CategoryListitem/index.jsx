@@ -4,12 +4,11 @@ import { useEffect, useState } from 'react';
 import { maxWords } from '../../../utils/math_helpers';
 import { useAuth } from '../../../context/AuthProvider';
 import useWindowSize from '../../../hooks/useWindowSize';
+import { useModal } from '../../../context/ModalProvider';
 import { useTheme } from '../../../context/ThemeProvider';
 import { useDataLayer } from '../../../context/DataProvider';
 
 // React components
-import { Modal } from '../../Modal';
-import { WishlistModal } from '../../WishlistModal';
 import { CartIcon } from '../../../react_icons/CartIcon';
 import { RightArrowIcon } from '../../../react_icons/RightArrowIcon';
 import { OutlinedWishListIcon } from '../../../react_icons/OutlinedWishListIcon';
@@ -21,6 +20,7 @@ export const CategoryListItem = ({ item }) => {
     const { theme } = useTheme();
     const _window = useWindowSize();
     const [{ currentUser }] = useAuth();
+    const [_, modalDispatch] = useModal();
     const [{ cart }, dataDispatch] = useDataLayer();
     const [existsInCart, setExistsInCart] = useState(false);
     const { _id, name, cover_image, variants, link, authors } = item;
@@ -45,7 +45,10 @@ export const CategoryListItem = ({ item }) => {
                 type: 'ADD_TO_CART',
                 cart: cart._id === 'guest' ? cart : null,
             });
-            if (success) dataDispatch({ type: 'ADD_TO_CART', payload: data });
+            if (success) {
+                dataDispatch({ type: 'ADD_TO_CART', payload: data });
+                dataDispatch({ type: 'SET_TOAST', payload: { data: toast } });
+            }
         } catch (error) {
             console.error(error);
         }
@@ -71,7 +74,7 @@ export const CategoryListItem = ({ item }) => {
                 type: 'REMOVE_FROM_CART',
                 cart: cart._id === 'guest' ? cart : null,
             });
-            if (success)
+            if (success) {
                 dataDispatch({
                     type: 'REMOVE_FROM_CART',
                     payload: {
@@ -80,6 +83,8 @@ export const CategoryListItem = ({ item }) => {
                         checkout,
                     },
                 });
+                dataDispatch({ type: 'SET_TOAST', payload: { data: toast } });
+            }
         } catch (error) {
             console.error(error);
         }
@@ -120,12 +125,7 @@ export const CategoryListItem = ({ item }) => {
                     <div
                         className='bibliography-icon'
                         style={{ backgroundColor: theme.color }}
-                        onClick={() =>
-                            setWishlistModal((prevState) => ({
-                                ...prevState,
-                                isActive: !prevState.isActive,
-                            }))
-                        }
+                        onClick={() => modalDispatch({ type: 'UPDATE_WISHLIST_MODAL' })}
                     >
                         <OutlinedWishListIcon style={{ fill: theme.dark_background }} />
                     </div>
@@ -157,11 +157,6 @@ export const CategoryListItem = ({ item }) => {
                     </Link>
                 </div>
             </div>
-            {wishlistModal.isActive && (
-                <Modal setIsModalActive={setWishlistModal}>
-                    <WishlistModal setIsModalActive={setWishlistModal} items={[item]} />
-                </Modal>
-            )}
         </>
     );
 };
