@@ -3,9 +3,10 @@ const jwt = require('jsonwebtoken');
 const router = require('express').Router();
 const Users = require('../models/users.model');
 const Cart = require('../models/carts.model');
-const { CustomError, errorResponse, successResponse } = require('../utils/errorHandlers');
+const { errorResponse, successResponse } = require('../utils/errorHandlers');
+const { CustomError } = require('../services');
 
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res, next) => {
     const { email, password } = req.body;
 
     try {
@@ -25,11 +26,11 @@ router.post('/login', async (req, res) => {
                     path: 'data',
                 },
             });
-        if (!user) throw new CustomError('401', 'failed', 'Invalid credentials');
+        if (!user) return next(CustomError.unAuthorized('Invalid credentials'));
 
         // Check if password is correct
         const validPass = await bcrypt.compare(password, user.password);
-        if (!validPass) throw new CustomError('401', 'failed', 'Invalid credentials');
+        if (!validPass) return next(CustomError.unAuthorized('Invalid credentials'));
 
         // Create and assign a token
         const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET /*{ expiresIn: "24h" }*/);
@@ -37,17 +38,19 @@ router.post('/login', async (req, res) => {
         res.cookie('userId', user._id.toString(), { path: '/' });
 
         return successResponse(res, {
-            status: 200,
             success: true,
-            data: { token, user: { ...user._doc, password: null } },
+            data: {
+                token,
+                user: { ...user._doc, password: null },
+            },
+            toast: {
+                status: 'success',
+                message: `You're successfully logged in`,
+            },
         });
     } catch (error) {
         console.error(error);
-        errorResponse(res, {
-            statusCode: +error.code,
-            message: error.message,
-            toast: error.toastStatus,
-        });
+        return next(error);
     }
 });
 
@@ -71,10 +74,10 @@ router.post('/signup', async (req, res) => {
                 },
             });
         if (user)
-            throw new CustomError(
-                '401',
-                'failed',
-                `${email} is associated with another account. Please use another email`
+            return next(
+                CustomError.alreadyExists(
+                    `${email} is associated with another account. Please use another email`
+                )
             );
 
         const salt = await bcrypt.genSalt(12);
@@ -106,7 +109,7 @@ router.post('/signup', async (req, res) => {
         res.cookie('userId', savedUser._id.toString(), { path: '/' });
 
         return successResponse(res, {
-            status: 201,
+            code: 201,
             success: true,
             data: { token, user: { ...savedUser._doc, password: null } },
             toast: {
@@ -116,11 +119,7 @@ router.post('/signup', async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        errorResponse(res, {
-            statusCode: +error.code,
-            message: error.message,
-            toast: error.toastStatus,
-        });
+        return next(error);
     }
 });
 
@@ -128,7 +127,6 @@ router.get('/logout', (req, res) => {
     res.cookie('token', 'loggedout');
     res.cookie('userId', 'loggedout');
     return successResponse(res, {
-        status: 200,
         success: true,
         data: { message: "You're logged out" },
         toast: {

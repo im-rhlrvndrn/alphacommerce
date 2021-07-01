@@ -1,5 +1,5 @@
-import axios from '../../axios';
 import { useEffect, useState } from 'react';
+import { useCart } from '../../hooks/useCart';
 import { useAuth } from '../../context/AuthProvider';
 import { useTheme } from '../../context/ThemeProvider';
 import { useDataLayer } from '../../context/DataProvider';
@@ -16,32 +16,20 @@ import { WishlistModal } from '../../components/WishlistModal';
 export const CartPage = () => {
     const { theme } = useTheme();
     const [{ currentUser }] = useAuth();
-    const [{ cart }, dataDispatch] = useDataLayer();
+    const { fetchCart } = useCart();
+    const [{ cart }] = useDataLayer();
     const [wishlistModal, setWishlistModal] = useState({ isActive: false });
 
-    const fetchCart = async () => {
-        try {
-            const {
-                data: { success, data, toast },
-            } = await axios.post(`/carts`, {
-                type: 'FETCH_DETAILS',
-                populate: {
-                    path: 'data.book',
-                },
-            });
-            if (success) {
-                dataDispatch({ type: 'SET_CART', payload: { cart: data.cart } });
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
     // Determining the cart values based on authentication
 
     useEffect(() => {}, [cart.checkout, currentUser]);
 
     useEffect(() => {
-        fetchCart();
+        fetchCart({
+            populate: {
+                path: 'data.book',
+            },
+        });
     }, []);
 
     return (

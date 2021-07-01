@@ -55,46 +55,39 @@ export const Wishlist = () => {
         <>
             <div className='cart-wrapper' style={{ backgroundColor: theme.dark_background }}>
                 <div className='cart'>
-                    <div
-                        className='font-md uppercase font-weight-md'
-                        style={{ color: theme.color }}
-                    >
+                    <div className='text-md uppercase font-semibold' style={{ color: theme.color }}>
                         {wishlists[wishlistIndex]?.name?.name}
                     </div>
                     <div className='cart-items' style={{ color: theme.color }}>
                         {renderWishListItems()}
                     </div>
                     <button
-                        className='continue-shopping mr-2'
+                        className='continue-shopping mr-8'
                         style={{ backgroundColor: theme.light_background, color: theme.color }}
-                        onClick={() => navigate('/')}
-                    >
+                        onClick={() => navigate('/')}>
                         Add more to wishlist
                     </button>
                 </div>
                 <div
-                    className='cart-checkout p-2 h-max'
-                    style={{ backgroundColor: theme.light_background, color: theme.color }}
-                >
+                    className='cart-checkout p-8 h-max'
+                    style={{ backgroundColor: theme.light_background, color: theme.color }}>
                     <h2>Summary</h2>
                     <div
-                        className='checkout-group mb-1'
-                        style={{ borderBottom: `2px solid ${theme.dark_background}` }}
-                    >
-                        <div className='checkout-group-row flex flex-justify-sb mb-1'>
+                        className='checkout-group mb-4'
+                        style={{ borderBottom: `2px solid ${theme.dark_background}` }}>
+                        <div className='checkout-group-row flex justify-between mb-4'>
                             <div className='heading'>sub-total</div>
                             <div className='price'>₹ </div>
                         </div>
-                        <div className='checkout-group-row flex flex-justify-sb mb-1'>
+                        <div className='checkout-group-row flex justify-between mb-4'>
                             <div className='heading'>gst</div>
                             <div className='price'>₹</div>
                         </div>
                     </div>
                     <div
-                        className='checkout-group mb-1'
-                        style={{ borderBottom: `2px solid ${theme.dark_background}` }}
-                    >
-                        <div className='checkout-group-row flex flex-justify-sb mb-1'>
+                        className='checkout-group mb-4'
+                        style={{ borderBottom: `2px solid ${theme.dark_background}` }}>
+                        <div className='checkout-group-row flex justify-between mb-4'>
                             <div className='heading'>total</div>
                             <div className='price'>
                                 ₹ {wishlists[wishlistIndex]?.estimated_price}
@@ -102,18 +95,16 @@ export const Wishlist = () => {
                         </div>
                     </div>
                     <button
-                        className='w-100p font-weight-md text-align-center'
+                        className='w-full font-semibold text-align-center'
                         style={{
                             backgroundColor: theme.constants.primary,
                             color: theme.constants.dark,
-                        }}
-                    >
+                        }}>
                         Proceed to Checkout
                     </button>
                     <button
-                        className='w-100p text-align-center'
-                        style={{ backgroundColor: 'transparent', color: theme.color }}
-                    >
+                        className='w-full text-align-center bg-transparent'
+                        style={{ color: theme.color }}>
                         Add all items to cart
                     </button>
                 </div>

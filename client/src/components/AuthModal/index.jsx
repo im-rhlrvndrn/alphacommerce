@@ -1,27 +1,64 @@
+import { v4 } from 'uuid';
 import axios from '../../axios';
 import { useState } from 'react';
+import { useToast } from '../../hooks/useToast';
 import { useAuth } from '../../context/AuthProvider';
 import { useTheme } from '../../context/ThemeProvider';
+import { useModal } from '../../context/ModalProvider';
 import { useDataLayer } from '../../context/DataProvider';
+import { withModalOverlay } from '../../hoc/withModalOverlay';
 
 // React components
 import { InputGroup } from '../InputGroup';
 
 // styles
 import './authmodal.scss';
-import { useModal } from '../../context/ModalProvider';
-import { withModalOverlay } from '../../hoc/withModalOverlay';
 
 export const AuthModal = ({ auth = 'signup', modal, dispatchType }) => {
     const { theme } = useTheme();
+    const { setToast } = useToast();
     const [_, modalDispatch] = useModal();
     const [{ currentUser }, authDispatch] = useAuth();
-    const [{ cart, wishlists }, dataDispatch] = useDataLayer();
+    const [{ cart }, dataDispatch] = useDataLayer();
     const [authState, setAuthState] = useState(auth);
     const [authData, setAuthData] = useState({});
 
     const updateAuthData = (event) =>
         setAuthData((prevState) => ({ ...prevState, [event.target.name]: event.target.value }));
+
+    const mergeGuestCartItems = async (cartId, cartItems) => {
+        try {
+            const {
+                data: { success },
+            } = await axios.post(`carts/${cartId}`, {
+                multi: true,
+                data: [...cartItems],
+                type: 'ADD_TO_CART',
+                cart: null,
+            });
+
+            if (success) {
+                const {
+                    data: { success, data },
+                } = await axios.get(`carts/${cartId}`);
+                if (success)
+                    dataDispatch({
+                        type: 'SET_CART',
+                        payload: {
+                            cart: {
+                                ...data.cart,
+                            },
+                        },
+                    });
+            }
+        } catch (error) {
+            setToast({
+                _id: v4(),
+                status: error?.response?.data?.status || 'failed',
+                message: error?.response?.data?.message || 'Data sync was not able to complete',
+            });
+        }
+    };
 
     const authActionHandler = async (event, { action }) => {
         try {
@@ -30,48 +67,36 @@ export const AuthModal = ({ auth = 'signup', modal, dispatchType }) => {
                 const {
                     data: {
                         success,
-                        data: { token, user },
+                        data: { user },
+                        toast,
                     },
                 } = await axios.post('/auth/login', {
                     email: authData.auth_email,
                     password: authData.auth_password,
                 });
 
-                console.log('Login Response: ', { token, user });
                 if (success) {
                     authDispatch({
                         type: 'LOGIN',
                         payload: { ...user },
                     });
-                    // ! Make another API call to update the cart details
-                    const {
-                        data: { success, data, toast },
-                    } = await axios.post(`carts/${user.cart._id}`, {
-                        multi: true,
-                        data: [...cart.data],
-                        type: 'ADD_TO_CART',
-                        cart: null,
+                    dataDispatch({
+                        type: 'SET_TOAST',
+                        payload: {
+                            data: {
+                                ...toast,
+                                _id: v4(),
+                            },
+                        },
                     });
-                    if (success) {
-                        const {
-                            data: { success, data, toast },
-                        } = await axios.get(`carts/${user.cart._id}`);
-                        if (success)
-                            dataDispatch({
-                                type: 'SET_CART',
-                                payload: {
-                                    cart: {
-                                        ...data.cart,
-                                    },
-                                },
-                            });
-                    }
+                    // ! Make another API call to update the cart details
+                    await mergeGuestCartItems(user.cart._id, cart.data);
                 }
             } else if (action === 'signup') {
                 const {
                     data: {
                         success,
-                        data: { token, user },
+                        data: { user },
                         toast,
                     },
                 } = await axios.post('/auth/signup', {
@@ -81,40 +106,26 @@ export const AuthModal = ({ auth = 'signup', modal, dispatchType }) => {
                     avatar: {},
                 });
 
-                console.log('Signup data: ', { success, data: { token, user }, toast });
                 if (success) {
+                    setToast({
+                        ...toast,
+                        _id: v4(),
+                    });
                     authDispatch({
                         type: 'SIGNUP',
                         payload: { ...user },
                     });
-                    const {
-                        data: { success, data, toast },
-                    } = await axios.post(`carts/${user.cart}`, {
-                        multi: true,
-                        data: [...cart.data],
-                        type: 'ADD_TO_CART',
-                        cart: null,
-                    });
-                    if (success) {
-                        const {
-                            data: { success, data, toast },
-                        } = await axios.get(`carts/${user.cart}`);
-                        if (success)
-                            dataDispatch({
-                                type: 'SET_CART',
-                                payload: {
-                                    cart: {
-                                        ...data.cart,
-                                    },
-                                },
-                            });
-                    }
+                    await mergeGuestCartItems(user.cart, cart.data);
                 }
             }
-
-            modalDispatch({ type: 'UPDATE_AUTH_MODAL' });
         } catch (error) {
-            console.log('Error => ', error.response);
+            setToast({
+                _id: v4(),
+                status: error?.response?.data?.status || 'failed',
+                message: error?.response?.data?.message || 'Data sync was not able to complete',
+            });
+        } finally {
+            modalDispatch({ type: 'UPDATE_AUTH_MODAL' });
         }
     };
 
@@ -175,7 +186,9 @@ export const AuthModal = ({ auth = 'signup', modal, dispatchType }) => {
 
     return (
         <div className='auth-modal'>
-            <form onSubmit={(event) => authActionHandler(event, { action: authState })}>
+            <form
+                style={{ color: theme.color }}
+                onSubmit={(event) => authActionHandler(event, { action: authState })}>
                 {inputs?.map(
                     (input) =>
                         input.condition.includes(authState) && (
@@ -195,16 +208,14 @@ export const AuthModal = ({ auth = 'signup', modal, dispatchType }) => {
                     style={{
                         backgroundColor: theme.constants.primary,
                         color: theme.constants.dark,
-                    }}
-                >
+                    }}>
                     {authState}
                 </button>
                 <div
                     className='form-toggle'
                     onClick={() =>
                         setAuthState((prevState) => (prevState === 'signup' ? 'login' : 'signup'))
-                    }
-                >
+                    }>
                     {authState === 'signup' ? 'Already a member? Login' : 'Create a new account?'}
                 </div>
             </form>

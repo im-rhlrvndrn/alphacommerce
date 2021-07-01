@@ -4,6 +4,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 // const verifyToken = require('./middlewares');
 const cookieParser = require('cookie-parser');
+
+// importing middlewares
+const { errorHandler } = require('./middlewares');
+
+// importing route handlers
 const authRoutes = require('./routes/auth.router');
 const cartRoutes = require('./routes/carts.router');
 const userRoutes = require('./routes/users.router');
@@ -31,6 +36,8 @@ app.use('/wishlists', wishlistRoutes);
 app.get('/', (req, res) => {
     res.json({ message: 'Hello everyone' });
 });
+
+app.use(errorHandler);
 
 app.listen(PORT, () => console.log(`Server is running on PORT ${PORT}`));
 

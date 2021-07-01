@@ -1,18 +1,27 @@
 const router = require('express').Router();
 const Book = require('../models/books.model');
-const { CustomError, errorResponse } = require('../utils/errorHandlers');
+const { CustomError } = require('../services');
+const { errorResponse, successResponse } = require('../utils/errorHandlers');
 
-router.route('/:genre').get(async (req, res) => {
+router.route('/:genre').get(async (req, res, next) => {
     const { genre } = req.params;
     try {
         const returnedBooks = await Book.find({ genres: { $in: [genre] } });
         if (!returnedBooks.length)
-            throw new CustomError('404', 'failed', `No books found with ${genre} genre `);
+            return next(
+                CustomError.notFound('404', 'failed', `No books found with ${genre} genre `)
+            );
 
-        res.status(200).json({ success: true, books: [...returnedBooks] });
+        return successResponse(res, {
+            success: true,
+            data: {
+                books: [...returnedBooks],
+            },
+            toast: { status: 'success', message: `Fetched books of ${genre} genre` },
+        });
     } catch (error) {
         console.error(error);
-        errorResponse(res, { code: +error.code, message: error.message, toast: error.toastStatus });
+        return next(error);
     }
 });
 

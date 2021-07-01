@@ -14,7 +14,7 @@ export const initialState = {
 };
 
 export const reducer = (state, { type, payload = { state: {} } }) => {
-    console.log('action => ', { type, payload });
+    console.log('modal action => ', { type, payload });
     switch (type) {
         case 'UPDATE_WISHLIST_MODAL': {
             const { state: modalState } = payload;

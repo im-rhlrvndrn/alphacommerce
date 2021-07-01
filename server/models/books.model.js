@@ -14,12 +14,12 @@ const bookSchema = new Schema(
             excerpt: {
                 type: String,
                 required: [true, 'Please provide excerpt of atmost 50 characters'],
-                max: [100, "The excerpt can't exceed 50 characters"],
+                max: [100, "The excerpt can't exceed 100 characters"],
             },
             text: {
                 type: String,
                 required: [true, 'Please provide summary of atmost 100 characters'],
-                max: [300, "The summary can't exceed 100 characters"],
+                max: [300, "The summary can't exceed 300 characters"],
             },
         },
         ratings: {
@@ -70,6 +70,7 @@ const bookSchema = new Schema(
                 },
                 stock_count: {
                     type: Number,
+                    default: 0,
                     required: [true, 'Please enter the stock_count of the item'],
                 },
                 price: { type: Number, required: true, default: 0 },

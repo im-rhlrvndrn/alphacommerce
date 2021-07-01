@@ -1,17 +1,22 @@
 const Users = require('../models/users.model');
-const { errorResponse, CustomError } = require('../utils/errorHandlers');
+const { CustomError } = require('../services');
+const { errorResponse, successResponse } = require('../utils/errorHandlers');
 
 const router = require('express').Router();
 
-router.route('/').get(async (req, res) => {
+router.route('/').get(async (req, res, next) => {
     try {
         const returnedUsers = await Users.find({});
-        console.log('Users => ', returnedUsers);
+        if (!returnedUsers.length) return next(CustomError.notFound('No users found'));
 
-        res.status(200).json({ success: true, user: returnedUsers });
+        successResponse(res, {
+            success: true,
+            data: { user: returnedUsers },
+            toast: { status: 'success', message: `Fetched users` },
+        });
     } catch (error) {
         console.error(error);
-        errorResponse(res, { code: +error.code, message: error.message, toast: error.toastStatus });
+        return next(error);
     }
 });
 

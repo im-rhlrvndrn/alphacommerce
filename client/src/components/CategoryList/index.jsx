@@ -13,10 +13,6 @@ import { CategoryListItem } from './CategoryListitem';
 export const CategoryList = ({ genre }) => {
     const { theme } = useTheme();
     const [books, setBooks] = useState([]);
-    console.log(`products before slice(${genre}): `, books);
-    // books = books.filter((item) => item.genres.includes(genre)).slice(0, 5);
-
-    console.log(`products after slice(${genre}): `, books);
 
     const fetchBooks = async (limit = 5) => {
         try {
@@ -28,7 +24,9 @@ export const CategoryList = ({ genre }) => {
                 genre,
             });
             if (success)
-                setBooks((prevState) => data.books.filter((item) => item.genres.includes(genre)));
+                setBooks(
+                    (prevState) => data.books /*.filter((item) => item.genres.includes(genre))*/
+                );
         } catch (error) {
             console.error(error);
         }
@@ -40,7 +38,7 @@ export const CategoryList = ({ genre }) => {
     return (
         <div className='category-section'>
             {genre && (
-                <div className='heading flex flex-justify-sb' style={{ color: theme.color }}>
+                <div className='heading flex justify-between' style={{ color: theme.color }}>
                     {genre}
                     <span style={{ color: theme.color }} className='floating-genre'>
                         {genre}
@@ -51,8 +49,7 @@ export const CategoryList = ({ genre }) => {
                             pathname: `/p`,
                             search: `?genre=${slugify(genre)}`,
                             state: { hello: 'everyone' },
-                        }}
-                    >
+                        }}>
                         Show all
                     </Link>
                 </div>

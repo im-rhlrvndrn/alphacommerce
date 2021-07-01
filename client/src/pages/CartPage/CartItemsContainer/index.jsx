@@ -12,8 +12,8 @@ export const CartItemsContainer = () => {
 
     return (
         <div className='cart'>
-            <div className='font-md cart-heading' style={{ color: theme.color }}>
-                My bag <span className='font-weight-s'>{cart.data.length} item(s)</span>
+            <div className='text-md cart-heading' style={{ color: theme.color }}>
+                My bag <span className='font-light'>{cart.data.length} item(s)</span>
             </div>
             {cart.data.length === 0 ? (
                 <p style={{ color: theme.color }}>No items in cart</p>
@@ -30,7 +30,7 @@ export const CartItemsContainer = () => {
                 </div>
             )}
             <button
-                className='continue-shopping mt-2 mr-2 font-s'
+                className='continue-shopping mt-8 mr-8 text-s'
                 style={{
                     backgroundColor: theme.light_background,
                     color: theme.color,

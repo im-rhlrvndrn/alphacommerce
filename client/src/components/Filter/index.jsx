@@ -1,5 +1,5 @@
 import { v4 } from 'uuid';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useDataLayer } from '../../context/DataProvider';
 
 // styles

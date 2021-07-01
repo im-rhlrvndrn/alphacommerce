@@ -19,14 +19,10 @@ export const ProductList = () => {
             {books?.map((book) => {
                 const { _id, name, summary, cover_image } = book;
                 return (
-                    <div className='productitem mr-2 flex' key={_id}>
-                        <img
-                            className='margin-reset'
-                            src={cover_image?.url}
-                            alt={`Book: ${name}`}
-                        />
+                    <div className='productitem mr-8 flex' key={_id}>
+                        <img className='m-0' src={cover_image?.url} alt={`Book: ${name}`} />
                         <div
-                            className='productitem-content flex flex-dir-cl'
+                            className='productitem-content flex flex-col'
                             style={{ color: theme.color, backgroundColor: theme.dark_background }}
                         >
                             <h2>{maxWords(name, 20)}</h2>

@@ -1,7 +1,7 @@
 import axios from '../../axios';
 import Cookies from 'js-cookie';
-import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthProvider';
 import { useTheme } from '../../context/ThemeProvider';
 import { useDataLayer } from '../../context/DataProvider';
@@ -28,7 +28,7 @@ export const WishlistPage = () => {
                 select: ['name', 'cover_image'],
             });
             if (success) {
-                dataDispatch({ type: 'SET_WISHLISTS', payload: { wishlists: data.wishlists } });
+                // dataDispatch({ type: 'SET_WISHLISTS', payload: { wishlists: data.wishlists } });
                 console.log(`---Fetched wishlists---`, data.wishlists);
                 setWishlists((prevState) => data.wishlists);
             }
@@ -59,8 +59,7 @@ export const WishlistPage = () => {
     return (
         <div
             className='wishlist'
-            style={{ backgroundColor: theme.dark_background, color: theme.color }}
-        >
+            style={{ backgroundColor: theme.dark_background, color: theme.color }}>
             <input
                 type='text'
                 name='wishlist-search'
@@ -68,15 +67,14 @@ export const WishlistPage = () => {
                 id='wishlist-search'
                 placeholder='Search for wishlist by name'
             />
-            <div className='font-md font-weight-md'>My wishlists</div>
+            <div className='text-lg font-semibold'>My wishlists</div>
             <div className='wishlist-wrapper'>
                 {wish_lists?.map(({ _id, name, cover_image }) => (
                     <Link to={`/wishlists/${_id}`} key={_id} className='wishlist-item'>
                         <img src={cover_image?.url} alt={name} />
                         <div
                             className='content'
-                            style={{ backgroundColor: theme.light_background }}
-                        >
+                            style={{ backgroundColor: theme.light_background }}>
                             <div className='name' style={{ color: theme.color }}>
                                 {name.name}
                             </div>

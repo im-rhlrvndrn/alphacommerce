@@ -48,13 +48,7 @@
                 flex: 1;
             }
 
-            * {
-                margin-bottom: 2rem;
-            }
-
             h1 {
-                margin-bottom: 0.5rem;
-                font-size: 3rem;
                 @include tablet {
                     font-size: 1.5rem;
                     line-height: 2rem;
@@ -65,7 +59,7 @@
                 flex-wrap: wrap;
 
                 .variant {
-                    margin: 0 0 1rem 1rem;
+                    margin: 0 1rem 1rem 0;
                     cursor: pointer;
 
                     &.active {
@@ -74,22 +68,13 @@
                 }
             }
 
-            .price {
-                font-size: 2rem;
-            }
-
             .cta-buttons {
-                display: flex;
-                // margin: 2rem 0;
-                height: max-content;
                 @include tablet {
                     flex-direction: column;
                 }
 
                 button {
                     margin: 0;
-                    font-size: 1rem;
-                    font-weight: 600;
 
                     &:last-child {
                         margin-left: 2rem;

@@ -26,7 +26,7 @@ import { Toast } from './components/Toast';
 export const App = () => {
     const [{ wishlist, auth, variant: variantModal }, modalDispatch] = useModal();
     const [{ currentUser, authModal }, authDispatch] = useAuth();
-    const [{ books, authors, genres, toasts }, dataDispatch] = useDataLayer();
+    const [{ books, authors, genres, cart, toasts }, dataDispatch] = useDataLayer();
     const [saveToLocalStorage, getFromLocalStorage] = useLocalStorage();
 
     const getBooks = async () => {
@@ -60,7 +60,7 @@ export const App = () => {
             });
         } catch (error) {
             console.error(error);
-            console.log(error.toJSON());
+            console.log(error.response);
         }
     };
 

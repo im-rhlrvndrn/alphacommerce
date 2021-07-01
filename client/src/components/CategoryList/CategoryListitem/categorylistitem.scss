@@ -1,7 +1,9 @@
 @import '../../../mixins.scss';
 
 .card {
+    min-width: 250px;
     width: 250px;
+    min-height: 350px;
     height: 350px;
     border-radius: 0;
     margin: 0 2rem 2rem 0;

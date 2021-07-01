@@ -20,12 +20,12 @@ export const ProductPage = () => {
     const fetchBookDetails = async () => {
         try {
             const {
-                data: { success, book },
+                data: { success, data },
             } = await axios.get(`/books/${urlParams.id}`);
             if (success)
                 setBook(() => ({
-                    ...book,
-                    variants: book.variants.map((variant) =>
+                    ...data.book,
+                    variants: data.book.variants.map((variant) =>
                         variant.type === 'paperback'
                             ? { ...variant, isSelected: true }
                             : { ...variant, isSelected: false }
@@ -67,26 +67,24 @@ export const ProductPage = () => {
         <>
             <div
                 className='product-page'
-                style={{ backgroundColor: theme.dark_background, color: theme.color }}
-            >
+                style={{ backgroundColor: theme.dark_background, color: theme.color }}>
                 <div className='product-page-hero'>
                     <img src={book?.cover_image?.url} alt={book?.name} />
                     <div className='product-page-hero-content'>
-                        <h1>
+                        <h1 className='text-2xl mb-4'>
                             <a
-                                href={book?.link?.url?.text}
+                                href={book?.external_urls?.amazon}
                                 target='_blank'
-                                style={{ color: theme.color }}
-                            >
+                                style={{ color: theme.color }}>
                                 {book?.name}
                             </a>
                         </h1>
-                        <p className='authors'>By {book?.authors?.join(', ')}</p>
-                        <div className='variant_container flex margin-reset mb-1'>
+                        <p className='authors mb-8'>By {book?.authors?.join(', ')}</p>
+                        <div className='variant_container flex mb-8'>
                             {book?.variants?.map((variant) => (
                                 <button
                                     key={variant._id}
-                                    className={`variant flex flex-align-center p-1 br-5 ${
+                                    className={`variant flex items-center p-4 br-5 ${
                                         variant.isSelected ? 'active' : ''
                                     }`}
                                     style={{
@@ -96,13 +94,12 @@ export const ProductPage = () => {
                                             ? `2px solid ${theme.constants.primary}`
                                             : '',
                                     }}
-                                    onClick={() => selectVariant(variant._id)}
-                                >
+                                    onClick={() => selectVariant(variant._id)}>
                                     {variant?.type}
                                 </button>
                             ))}
                         </div>
-                        <h2 className='price'>
+                        <h2 className='mb-8 text-xl'>
                             ₹{' '}
                             {book?.variants?.length &&
                                 getSelectedVariantPrice(
@@ -110,7 +107,7 @@ export const ProductPage = () => {
                                     book.variants[findIndex(book.variants, 'isSelected')].type
                                 )}
                         </h2>
-                        <div className='cta-buttons'>
+                        <div className='cta-buttons flex mb-8'>
                             {book && (
                                 <AddToCart
                                     item={book}
@@ -120,11 +117,11 @@ export const ProductPage = () => {
                                 />
                             )}
                             <button
+                                className='text-s font-semibold'
                                 style={{
                                     backgroundColor: theme.constants.primary,
                                     color: theme.constants.dark,
-                                }}
-                            >
+                                }}>
                                 Get A Copy
                             </button>
                         </div>

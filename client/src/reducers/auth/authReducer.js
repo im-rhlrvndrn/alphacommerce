@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import { getDataFromLocalStorage, saveDataToLocalStorage } from '../hooks/useLocalStorage';
+import { getDataFromLocalStorage, saveDataToLocalStorage } from '../../hooks/useLocalStorage';
 /*
  user ={
     username: {
@@ -22,11 +22,6 @@ import { getDataFromLocalStorage, saveDataToLocalStorage } from '../hooks/useLoc
 */
 
 export const initialState = {
-    authModal: {
-        from: '/',
-        state: 'signup',
-        isActive: false,
-    },
     currentUser: getDataFromLocalStorage('currentUser') || {
         _id: 'guest',
         email: null,
@@ -40,12 +35,6 @@ export const reducer = (state, { type, payload }) => {
     console.log('auth dispatch:', { type, payload });
 
     switch (type) {
-        case 'UPDATE_AUTH_MODAL': {
-            return {
-                ...state,
-                authModal: payload.authModal,
-            };
-        }
         case 'SIGNUP':
             // * Setting up the new user
             saveDataToLocalStorage('currentUser', {
@@ -60,11 +49,6 @@ export const reducer = (state, { type, payload }) => {
             };
 
         case 'LOGIN':
-            // const validUser = state.users.filter(
-            //     (user) =>
-            //         user.username.text === payload.username &&
-            //         user.password.text === payload.password
-            // );
             // * const cookie = Cookies.get('userId');
             // saveDataToLocalStorage(
             //     'currentUser',

@@ -5,7 +5,9 @@ export const useLocalStorage = () => {
             : localStorage.setItem(propertyName, JSON.stringify(data));
 
     const getDataFromLocalStorage = (propertyName) =>
-        JSON.parse(localStorage.getItem(propertyName));
+        !localStorage.getItem(propertyName)
+            ? localStorage.getItem(propertyName)
+            : JSON.parse(localStorage.getItem(propertyName));
 
     return [saveDataToLocalStorage, getDataFromLocalStorage];
 };

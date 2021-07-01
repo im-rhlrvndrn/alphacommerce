@@ -2,76 +2,23 @@ const router = require('express').Router();
 const authMiddleware = require('../middlewares');
 const Users = require('../models/users.model');
 const Wishlists = require('../models/wishlists.model');
+const { CustomError } = require('../services');
 const { mongooseSave, createWishlists } = require('../utils');
-const {
-    CustomError,
-    errorResponse,
-    summation,
-    successResponse,
-} = require('../utils/errorHandlers');
-
-// router.authMiddleware();
-/*
-router
-    .route('/')
-    .get(authMiddleware, async (req, res) => {
-        try {
-            // ! req.user.id will be injected by the auth middleware
-            console.log('Request user: ', req.user);
-            if (!req.user.id) throw new CustomError('401', 'failed', 'Unauthorized: Access Denied');
-
-            const returnedWishlists = await Wishlists.find({ user: req.user.id });
-            res.status(200).json({ message: 'Your wishlists', result: returnedWishlists });
-        } catch (error) {
-            console.log('Error => ', error);
-            errorResponse(res, {
-                statusCode: +error.code,
-                message: error.message,
-                toast: error.toastStatus,
-            });
-        }
-    })
-    .post(async (req, res) => {
-        const newItem = req.body.id;
-        try {
-            if (!req.user.id) throw new CustomError('401', 'failed', 'Unauthorized: Access Denied');
-
-            const returnedReadlist = Wishlists.findOne({ user: req.user.id }).populate('data');
-            const itemAlreadyExists = returnedReadlist.data.find((item) => item._id === id);
-            if (itemAlreadyExists)
-                throw new CustomError(
-                    '409',
-                    'warning',
-                    `Item already exists in ${returnedReadlist.name}`
-                );
-
-            returnedReadlist.data.push(newItem);
-
-            await returnedReadlist.save();
-        } catch (error) {
-            console.error(error);
-            errorResponse(res, {
-                statusCode: +error.code,
-                message: error.message,
-                toast: error.toastStatus,
-            });
-        }
-    });
-    */
+const { errorResponse, summation, successResponse } = require('../utils/errorHandlers');
 
 router
     .route('/')
-    .get(async (req, res) => {
+    .get(async (req, res, next) => {
         try {
             // ! req.auth will be injected by the auth middleware => authMiddleware
             // console.log('Request user: ', req.auth);
             // if (!req.auth) throw new CustomError('401', 'failed', 'Unauthorized: Access Denied');
 
-            console.log('SELECT Request params', req.params);
-
             const returnedWishlists = await Wishlists.find({ user: req.cookies.userId }).select(
                 req.params.select
             );
+            if (!returnedWishlists.length)
+                return next(CustomError.notFound(`Can't fetch any wishlists`));
             return successResponse(res, {
                 status: 200,
                 success: true,
@@ -83,14 +30,10 @@ router
             });
         } catch (error) {
             console.log('Error => ', error);
-            errorResponse(res, {
-                statusCode: +error.code,
-                message: error.message,
-                toast: error.toastStatus,
-            });
+            return next(errror);
         }
     })
-    .post(async (req, res) => {
+    .post(async (req, res, next) => {
         const { wishlist, body, cookies } = req;
         try {
             const { type } = body;
@@ -103,6 +46,8 @@ router
                     })
                         .select(select || [])
                         .populate(populate);
+                    if (!returnedWishlists.length)
+                        return next(CustomError.notFound(`Can't fetch any wishlists`));
 
                     return successResponse(res, {
                         status: 200,
@@ -142,11 +87,7 @@ router
 
                         const returnedUser = await Users.findOne({ _id: item.user });
                         if (!returnedUser)
-                            throw new CustomError(
-                                '404',
-                                'failed',
-                                "Can't create playlist. Please login first"
-                            );
+                            return next(CustomError.notFound('No user found. Please login again'));
 
                         const wishlistExists = await Wishlists.findOne({
                             user: item.user,
@@ -174,12 +115,10 @@ router
                         }
 
                         returnedUser.wishlists = [...returnedUser.wishlists, newWishlist];
-                        // await mongooseSave(newWishlist); // This function will just save to DB. Since Mongoose.Model.save() can't be executed in a loop
                         await returnedUser.save();
                         await newWishlist.save();
                         savedWishlists = [...savedWishlists, newWishlist];
                     });
-                    // savedWishlists = await createWishlists(newWishlists);
 
                     console.log('Collection of all savedWishlists => ', savedWishlists);
 
@@ -207,6 +146,9 @@ router
                         const removedWishlist = await Wishlists.findByIdAndRemove({
                             _id: item,
                         });
+                        if (!removedWishlist)
+                            return next(CustomError.notFound(`No such wishlist to delete`));
+
                         returnedWishlists.push(removedWishlist);
                     });
 
@@ -224,15 +166,11 @@ router
                     }, 3000);
 
                 default:
-                    throw new CustomError('500', 'failed', 'Invalid operation type');
+                    return next(CustomError.serverError('Invalid operation type'));
             }
         } catch (error) {
             console.error(error);
-            errorResponse(res, {
-                statusCode: +error.code,
-                message: error.message,
-                toast: error.toastStatus,
-            });
+            return next(error);
         }
     });
 
@@ -247,36 +185,28 @@ router.param('wishlistId', async (req, res, next, wishlistId) => {
                     path: 'data.book',
                 }
             );
-        if (!returnedWishlist) throw new CustomError('404', 'failed', 'Wishlist not found!');
+        if (!returnedWishlist) return next(CustomError.notFound('Wishlist not found!'));
         console.log('wishlist from routerParam()', returnedWishlist._doc.data);
 
         req.wishlist = returnedWishlist;
         next();
     } catch (error) {
         console.error(error);
-        errorResponse(res, {
-            statusCode: +error.code,
-            message: error.message,
-            toast: error.toastStatus,
-        });
+        return next(error);
     }
 });
 
 router
     .route('/:wishlistId')
-    .get(async (req, res) => {
+    .get(async (req, res, next) => {
         try {
             res.status(200).json({ success: true, data: { wishlist: req.wishlist } });
         } catch (error) {
             console.error(error);
-            errorResponse(res, {
-                statusCode: +error.code,
-                message: error.message,
-                toast: error.toastStatus,
-            });
+            return next(error);
         }
     })
-    .post(async (req, res) => {
+    .post(async (req, res, next) => {
         const { wishlist, body } = req;
         try {
             const { type } = body;
@@ -284,7 +214,6 @@ router
             switch (type) {
                 case 'FETCH_DETAILS': {
                     return successResponse(res, {
-                        status: 200,
                         success: true,
                         data: { wishlist: req.wishlist },
                         toast: {
@@ -302,42 +231,38 @@ router
                             (item) => item.book._id.toString() === wishlistItem._id
                         ) !== -1
                     )
-                        throw new CustomError(
-                            '209',
-                            'warning',
-                            `Already exists in (${wishlist.name.name}) wishlist`
+                        return next(
+                            CustomError.alreadyExists(
+                                `Already exists in (${wishlist.name.name}) wishlist`,
+                                'warning'
+                            )
                         );
                     else {
                         wishlist.data = [...wishlist.data, { book: wishlistItem }];
                     }
 
-                    await wishlist.save();
+                    wishlist.estimated_price = wishlist.data.reduce(
+                        (acc, cur) =>
+                            acc +
+                            cur.book.variants[
+                                cur.book.variants.findIndex((item) => item.type === 'paperback')
+                            ].price,
+                        0
+                    );
 
-                    // return setTimeout(() => {
+                    const savedWishlist = await wishlist.save();
+
                     return successResponse(res, {
-                        status: 200,
                         success: true,
                         data: {
                             wishlist: wishlistItem,
-                            estimated_price: wishlist.data.reduce(
-                                (acc, cur) =>
-                                    acc +
-                                    cur.book.variants[
-                                        cur.book.variants.findIndex(
-                                            (item) => item.type === 'paperback'
-                                        )
-                                    ].price,
-                                0
-                            ),
+                            estimated_price: savedWishlist._doc.estimated_price,
                         },
                         toast: {
                             status: 'success',
                             message: `Added to ${wishlist.name.name}`,
                         },
                     });
-                    // }, 3000);
-
-                    break;
                 }
 
                 case 'REMOVE_FROM_WISHLIST': {
@@ -348,10 +273,8 @@ router
                             (item) => item.book._id.toString() === wishlistItem._id
                         ) === -1
                     )
-                        throw new CustomError(
-                            '404',
-                            'failed',
-                            `Doesn't exist in (${wishlist.name.name})`
+                        return next(
+                            CustomError.notFound(`Item doesn't exist in (${wishlist.name.name})`)
                         );
                     else {
                         wishlist.data = wishlist.data.filter(
@@ -359,14 +282,23 @@ router
                         );
                     }
 
-                    await wishlist.save();
+                    wishlist.estimated_price = wishlist.data.reduce(
+                        (acc, cur) =>
+                            acc +
+                            cur.book.variants[
+                                cur.book.variants.findIndex((item) => item.type === 'paperback')
+                            ].price,
+                        0
+                    );
+
+                    const savedWishlist = await wishlist.save();
 
                     // return setTimeout(() => {
                     successResponse(res, {
-                        status: 200,
                         success: true,
                         data: {
-                            wishlist: wishlistItem,
+                            estimated_price: savedWishlist._doc.estimated_price,
+                            wishlistItem,
                         },
                         toast: {
                             status: 'success',
@@ -376,15 +308,11 @@ router
                 }
 
                 default:
-                    throw new CustomError('500', 'failed', 'Invalid operation type');
+                    return next(CustomError.serverError(`Invalid operation type`));
             }
         } catch (error) {
             console.error(error);
-            errorResponse(res, {
-                statusCode: +error.code,
-                message: error.message,
-                toast: error.toastStatus,
-            });
+            return next(error);
         }
     });
 

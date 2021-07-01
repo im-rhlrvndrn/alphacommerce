@@ -1,20 +1,17 @@
 const router = require('express').Router();
+const { v4 } = require('uuid');
 const Carts = require('../models/carts.model');
-const {
-    getVariantPrice,
-    errorResponse,
-    CustomError,
-    summation,
-    successResponse,
-} = require('../utils');
+const { CustomError } = require('../services');
+const { getVariantPrice, errorResponse, summation, successResponse } = require('../utils');
 
-router.route('/').post(async (req, res) => {
+router.route('/').post(async (req, res, next) => {
     const { body, cookies } = req;
     try {
         const { select, populate } = body;
         const returnedCart = await Carts.findOne({ user: cookies.userId })
             .select(select || [])
             .populate(populate || '');
+        if (!returnedCart) return next(CustomError.notFound('No cart found'));
 
         return successResponse(res, {
             status: 200,
@@ -29,78 +26,73 @@ router.route('/').post(async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        errorResponse(res, {
-            code: 500,
-            message: 'Something went wrong on the server',
-            toast: 'failed',
-        });
+        return next(error);
     }
 });
 
 router.param('cartId', async (req, res, next, cartId) => {
     try {
         const { body } = req;
+        console.log('Request cart => ', body.cart);
+        const { select, populate } = body;
         const returnedCart = body.cart
             ? body.cart
-            : await Carts.findById(cartId).populate({
-                  path: 'data.book',
-                  // select: ['name'],
-              });
-        // console.log('Cart => ', returnedCart);
-        if (!returnedCart) throw new CustomError('404', 'failed', 'No cart found!');
+            : await Carts.findById(cartId)
+                  .select(select || [])
+                  .populate(
+                      populate || {
+                          path: 'data.book',
+                      }
+                  );
+        if (!returnedCart) return next(CustomError.notFound('No cart found!'));
 
         req.cart = returnedCart;
         next();
     } catch (error) {
         console.error(error);
-        errorResponse(res, { code: +error.code, message: error.message, toast: error.toastStatus });
+        return next(error);
     }
 });
 
 router
     .route('/:cartId')
-    .get(async (req, res) => {
-        /*
-    
-    req.body = {
-            type; 'ADD_TO_CART,
-            data: {
-                cartItemId: null, // if the item doesn't exist in cart already
-                bookId: 'kladsjfqer143_3skji9',
-                variant:{
-                    type: 'ebook,
-                    price: 2343,
-                }
-            }
-        }
-
-    */
+    .get(async (req, res, next) => {
         try {
             return res
                 .status(200)
                 .json({ success: true, data: { cart: req.cart._doc } /*req.cart._doc*/ });
         } catch (error) {
             console.error(error);
-            errorResponse(res, {
-                code: +error.code,
-                message: error.message,
-                toast: error.toastStatus,
-            });
+            return next(error);
         }
     })
-    .post(async (req, res) => {
+    .post(async (req, res, next) => {
         let {
             cart,
             body: { type }, // Destructuring for all the cases
         } = req;
         try {
-            const { body } = req;
+            const { body, cart } = req;
             switch (type) {
+                case 'FETCH_DETAILS': {
+                    return successResponse(res, {
+                        status: 200,
+                        success: true,
+                        data: {
+                            cart: cart._doc,
+                        },
+                        toast: {
+                            status: 'success',
+                            message: 'Successfully fetched cart information',
+                        },
+                    });
+                }
+
                 case 'ADD_TO_CART': {
                     const { data, multi } = body;
 
                     const newCartItems = data.map(({ book, quantity, variant, total }) => ({
-                        _id: cart._id === 'guest' ? `${cart.data.length + 1}` : undefined,
+                        _id: cart._id === 'guest' ? `${v4()}` : undefined,
                         book: book,
                         quantity: quantity || 1,
                         variant: variant,
@@ -115,14 +107,9 @@ router
                                     item.variant.type === newCartItems[0].variant.type
                             ) !== -1
                         )
-                            return res.status(200).json({
-                                success: true,
-                                data: null,
-                                toast: {
-                                    status: 'success',
-                                    message: 'Already in cart',
-                                },
-                            });
+                            return next(
+                                CustomError.alreadyExists(`Already exists in cart`, 'warning')
+                            );
 
                         cart.data = [...cart.data, newCartItems[0]];
                     } else {
@@ -168,14 +155,14 @@ router
                     };
 
                     const savedCart = cart._id === 'guest' ? cart : await cart.save();
-                    return res.status(200).json({
+                    return successResponse(res, {
                         success: true,
                         data: {
                             checkout: savedCart.checkout,
-                            data: newCartItems,
+                            data: multi ? savedCart.data : newCartItems,
                         },
                         toast: {
-                            message: 'Added to cart',
+                            message: `Added ${multi ? '' : newCartItems[0].book.name} to cart`,
                             status: 'success',
                         },
                     });
@@ -183,6 +170,17 @@ router
 
                 case 'REMOVE_FROM_CART': {
                     const { _id, variant } = body;
+                    console.log('Req data => ', { _id, variant });
+
+                    const cartItemToBeRemoved = cart.data.find(
+                        (item) =>
+                            item.book._id.toString() === _id && item.variant.type === variant.type
+                    );
+                    console.log('Item to be removed => ', cartItemToBeRemoved);
+                    if (!cartItemToBeRemoved)
+                        return next(
+                            CustomError.notFound(`Couldn't find the item in cart`, 'warning')
+                        );
 
                     cart.data = cart.data.filter(
                         (item) =>
@@ -195,7 +193,8 @@ router
                     };
 
                     const updatedCart = cart._id === 'guest' ? cart : await cart.save();
-                    return res.status(200).json({
+                    return successResponse(res, {
+                        code: 200,
                         success: true,
                         data: {
                             _id,
@@ -204,7 +203,7 @@ router
                         },
                         toast: {
                             status: 'success',
-                            message: 'Removed from cart',
+                            message: `Removed ${cartItemToBeRemoved.book.name} from cart`,
                         },
                     });
                 }
@@ -240,9 +239,9 @@ router
 
                     const updatedCart = cart._id === 'guest' ? cart : await cart.save();
                     if (!updatedCart)
-                        throw new CustomError('500', 'failed', "Couldn't update the cart item");
+                        return next(CustomError.serverError("Couldn't update the cart item"));
 
-                    return res.status(200).json({
+                    return successResponse(res, {
                         success: true,
                         data: {
                             _id,
@@ -251,7 +250,7 @@ router
                         },
                         toast: {
                             status: 'success',
-                            message: 'Updated cart item',
+                            message: `Updated quantity of ${updatedItem.book.name} to ${updatedItem.quantity}`,
                         },
                     });
                 }
@@ -267,7 +266,7 @@ router
                                 item.variant.type === variant.type
                         ) !== -1
                     )
-                        throw new CustomError('209', 'warning', 'Already in cart');
+                        return next(CustomError.alreadyExists('Already in cart', 'warning'));
 
                     cart.data = cart.data.map((item) => {
                         if (item._id.toString() === cartItemId) {
@@ -293,9 +292,9 @@ router
 
                     const updatedCart = cart._id === 'guest' ? cart : await cart.save();
                     if (!updatedCart)
-                        throw new CustomError('500', 'failed', "Couldn't update the cart item");
+                        return next(CustomError.serverError("Couldn't update the cart item"));
 
-                    return res.status(200).json({
+                    return successResponse(res, {
                         success: true,
                         data: {
                             _id: bookId,
@@ -310,15 +309,11 @@ router
                 }
 
                 default:
-                    return res.json({ success: true, data: { cart } });
+                    return next(CustomError.serverError('Invalid operation type'));
             }
         } catch (error) {
             console.error(error);
-            errorResponse(res, {
-                code: +error.code,
-                message: error.message,
-                toast: error.toastStatus,
-            });
+            return next(error);
         }
     });
 

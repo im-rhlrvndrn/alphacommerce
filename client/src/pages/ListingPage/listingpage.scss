@@ -44,7 +44,7 @@
 
             .category-container {
                 flex: 0.8;
-                padding: 0 0 0 4rem;
+                padding: 0 0 0 1rem;
                 @include tablet {
                     padding: 0 0 0 2rem;
                 }
@@ -53,8 +53,8 @@
                     width: 100%;
 
                     .card {
-                        margin-right: 2rem;
-                        margin-bottom: 2rem;
+                        margin-right: 1rem;
+                        margin-bottom: 1rem;
                     }
                 }
             }

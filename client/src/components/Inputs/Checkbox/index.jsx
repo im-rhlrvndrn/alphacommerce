@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { createSearchParams, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../../context/ThemeProvider';
 import { useDataLayer } from '../../../context/DataProvider';
 
@@ -9,7 +8,6 @@ import './checkbox.scss';
 export const Checkbox = ({ data, dispatchType }) => {
     const { name, type } = data;
     const { theme } = useTheme();
-    const navigate = useNavigate();
     const [{ genreFilters, authorFilters }, dataDispatch] = useDataLayer();
     const [isChecked, setIsChecked] = useState(
         genreFilters.includes(name) || authorFilters.includes(name) || false

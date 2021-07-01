@@ -1,6 +1,5 @@
 import axios from '../../../axios';
 import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 import { useAuth } from '../../../context/AuthProvider';
 import useWindowSize from '../../../hooks/useWindowSize';
 import { useModal } from '../../../context/ModalProvider';
@@ -9,6 +8,8 @@ import { useDataLayer } from '../../../context/DataProvider';
 
 // React components
 import { CartIcon } from '../../../react_icons/CartIcon';
+import { DarkLogo } from '../../../react_icons/DarkLogo';
+import { LightLogo } from '../../../react_icons/LightLogo';
 import { DarkModeIcon } from '../../../react_icons/DarkModeIcon';
 import { WishListIcon } from '../../../react_icons/WishListIcon';
 import { LightModeIcon } from '../../../react_icons/LightModeIcon';
@@ -39,6 +40,12 @@ export const DesktopNav = ({ setAuthModal }) => {
                         },
                     },
                 });
+                dataDispatch({
+                    type: 'SET_WISHLISTS',
+                    payload: {
+                        wishlists: [],
+                    },
+                });
             }
         } catch (error) {
             console.log(error);
@@ -48,8 +55,9 @@ export const DesktopNav = ({ setAuthModal }) => {
     return (
         <nav style={{ backgroundColor: theme.dark_background, color: theme.color }}>
             <div className='nav'>
-                <h1 className='font-lg logo margin-reset' style={{ marginRight: '2rem' }}>
+                <h1 className='text-lg logo m-0 mr-8'>
                     <Link to='/' style={{ color: theme.color }}>
+                        {isLightTheme ? <DarkLogo /> : <LightLogo />}
                         AlphaReads
                     </Link>
                 </h1>
@@ -61,15 +69,14 @@ export const DesktopNav = ({ setAuthModal }) => {
                     placeholder='Search a book'
                 />
                 <Link to=''>
-                    <span style={{ marginRight: '2rem', color: theme.color }}>
+                    <span className='mr-8' style={{ color: theme.color }}>
                         Hello, {currentUser?.full_name}
                         <ul
                             className='nav-dropdown'
                             style={{
                                 backgroundColor: theme.dark_background,
                                 color: theme.color,
-                            }}
-                        >
+                            }}>
                             {currentUser._id === 'guest' && (
                                 <>
                                     <li
@@ -81,8 +88,7 @@ export const DesktopNav = ({ setAuthModal }) => {
                                         }
                                         style={{
                                             borderBottom: `2px solid ${theme.light_background}`,
-                                        }}
-                                    >
+                                        }}>
                                         Login
                                     </li>
                                     <li
@@ -94,8 +100,7 @@ export const DesktopNav = ({ setAuthModal }) => {
                                         }
                                         style={{
                                             borderBottom: `2px solid ${theme.light_background}`,
-                                        }}
-                                    >
+                                        }}>
                                         Signup
                                     </li>
                                 </>
@@ -105,8 +110,7 @@ export const DesktopNav = ({ setAuthModal }) => {
                                     onClick={logout}
                                     style={{
                                         borderBottom: `2px solid ${theme.light_background}`,
-                                    }}
-                                >
+                                    }}>
                                     Logout
                                 </li>
                             )}
@@ -127,12 +131,11 @@ export const DesktopNav = ({ setAuthModal }) => {
                         />
                         {cart?.data?.length > 0 && (
                             <div
-                                className='badge-floating rounded'
+                                className='badge-floating rounded-full flex items-center justify-center'
                                 style={{
                                     backgroundColor: theme.constants.primary,
                                     color: theme.constants.dark,
-                                }}
-                            >
+                                }}>
                                 {cart?.data?.length}
                             </div>
                         )}

@@ -16,16 +16,16 @@ export const CartCheckout = ({ setWishlistModal }) => {
 
     return (
         <div
-            className='cart-checkout p-2 h-max'
+            className='cart-checkout p-8 h-max'
             style={{ backgroundColor: theme.light_background, color: theme.color }}
         >
-            <h2 className='font-md margin-reset'>Price summary</h2>
-            <div className='checkout-group pt-1 pb-1'>
-                <div className='checkout-group-row flex flex-justify-sb mb-1'>
+            <h2 className='text-lg m-0'>Price summary</h2>
+            <div className='checkout-group pt-4 pb-4'>
+                <div className='checkout-group-row flex justify-between mb-4'>
                     <div className='heading'>Sub-total</div>
                     <div className='price'>₹ {fixedTo(calculateSubTotal(cart.data), 2)}</div>
                 </div>
-                <div className='checkout-group-row flex flex-justify-sb mb-1'>
+                <div className='checkout-group-row flex justify-between mb-4'>
                     <div className='heading'>GST</div>
                     <div className='price'>
                         ₹ {fixedTo(calculateTax(calculateSubTotal(cart.data)), 2)}
@@ -62,11 +62,10 @@ export const CartCheckout = ({ setWishlistModal }) => {
                     </div>
                 </div>
                 <button
-                    className='w-100p text-align-center'
+                    className='w-full text-align-center font-semibold'
                     style={{
                         backgroundColor: theme.constants.primary,
                         color: theme.constants.dark,
-                        fontWeight: '600',
                     }}
                 >
                     Checkout

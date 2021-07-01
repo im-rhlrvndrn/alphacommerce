@@ -27,10 +27,15 @@ export const WishlistItem = ({ item }) => {
             type: 'REMOVE_FROM_WISHLIST',
             wishlistItem: item,
         });
+        console.log('Removed wishlist item from backend => ', data);
         if (success) {
             dataDispatch({
                 type: 'REMOVE_FROM_WISHLIST',
-                payload: { wishlistId: urlParams.id, wishlist: data.wishlist },
+                payload: {
+                    wishlistId: urlParams.id,
+                    wishlistItem: data.wishlistItem,
+                    estimated_price: data.estimated_price,
+                },
             });
         }
     };
@@ -54,8 +59,7 @@ export const WishlistItem = ({ item }) => {
                 <button
                     className='remove_item'
                     onClick={() => removeFromWishlist(_id)}
-                    style={{ color: theme.color }}
-                >
+                    style={{ color: theme.color }}>
                     Remove
                 </button>
             </div>

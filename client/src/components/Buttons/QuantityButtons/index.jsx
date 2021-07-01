@@ -1,94 +1,38 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../../../context/AuthProvider';
 import { useTheme } from '../../../context/ThemeProvider';
 import { useDataLayer } from '../../../context/DataProvider';
 
 // styles
 import './quantitybuttons.scss';
-import axios from '../../../axios';
+import { useCart } from '../../../hooks/useCart';
 
 export const QuantityButtons = ({ productId, variant }) => {
     const { theme } = useTheme();
-    const [{ currentUser }] = useAuth();
     const [quantity, setQuantity] = useState();
     const [{ cart }, dataDispatch] = useDataLayer();
-
-    const updateCart = async (inc) => {
-        try {
-            const {
-                data: {
-                    success,
-                    data: { _id, updatedItem, checkout },
-                    toast,
-                },
-            } = await axios.post(`/carts/${cart._id}`, {
-                _id: productId,
-                variant,
-                inc,
-                cart: cart._id === 'guest' ? cart : null,
-                type: 'UPDATE_QUANTITY',
-            });
-            if (success)
-                dataDispatch({
-                    type: 'UPDATE_CART_ITEM',
-                    payload: {
-                        _id,
-                        updatedItem,
-                        checkout,
-                    },
-                });
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const removeFromCart = async () => {
-        try {
-            const cartItemIndex = cart.data.findIndex(
-                (item) => item.book._id === productId && item.variant.type === variant.type
-            );
-            if (cartItemIndex === -1) return; // ! Error Handling with toast that says "This item doesn't exist in cart"
-
-            const {
-                data: {
-                    success,
-                    data: { _id, variant: variantResponse, checkout },
-                    toast,
-                },
-            } = await axios.post(`/carts/${cart._id}`, {
-                variant,
-                _id: productId,
-                type: 'REMOVE_FROM_CART',
-                cart: cart._id === 'guest' ? cart : null,
-            });
-            if (success)
-                dataDispatch({
-                    type: 'REMOVE_FROM_CART',
-                    payload: {
-                        _id,
-                        variant: variantResponse,
-                        checkout,
-                    },
-                });
-        } catch (error) {
-            console.error(error);
-        }
-    };
+    const { removeFromCart, updateCart } = useCart();
+    const [disabled, setDisabled] = useState(false);
 
     useEffect(() => {
-        // const userIndex = cart.findIndex((item) => item.userId === currentUser);
         const cartItemIndex = cart.data.findIndex(
             (item) => item.book._id === productId && item.variant.type === variant.type
         );
         setQuantity((prevState) => cart.data[cartItemIndex].quantity);
+        setDisabled(false);
     }, [cart.data, variant.type]);
 
     return (
         <div className='quantityBtns'>
             <button
+                disabled={disabled}
+                className={`${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                 style={{ backgroundColor: theme.color, color: theme.dark_background }}
-                onClick={() => (quantity === 1 ? removeFromCart() : updateCart(false))}
-            >
+                onClick={() => {
+                    setDisabled(true);
+                    quantity === 1
+                        ? removeFromCart({ id: productId, variant })
+                        : updateCart({ id: productId, variant, inc: false });
+                }}>
                 {quantity === 1 ? 'x' : '-'}
             </button>
             <input
@@ -99,9 +43,10 @@ export const QuantityButtons = ({ productId, variant }) => {
                 // onChange={(event) => setQuantity((prevState) => event.target.value)}
             />
             <button
+                disabled={disabled}
+                className={`${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                 style={{ backgroundColor: theme.color, color: theme.dark_background }}
-                onClick={() => updateCart(true)}
-            >
+                onClick={() => updateCart({ id: productId, variant, inc: true })}>
                 +
             </button>
         </div>

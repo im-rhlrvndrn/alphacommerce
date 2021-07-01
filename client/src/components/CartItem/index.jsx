@@ -48,7 +48,7 @@ export const CartItem = ({ item }) => {
                 <div className='cartItem_container'>
                     <div className='cartItem_details'>
                         <p className='name'>{maxWords(name, 30)}</p>
-                        <p className='total_price font-lg'>₹ {total}</p>
+                        <p className='total_price text-lg'>₹ {total}</p>
                         {/* <p className='price'>
                         ₹ {getSelectedVariantPrice(item.book.variants, variant.type)}
                     </p> */}
@@ -76,7 +76,7 @@ export const CartItem = ({ item }) => {
                                     })
                                 }
                             >
-                                Variant: <strong className='font-weight-md'>{variant?.type}</strong>
+                                Variant: <strong className='font-semibold'>{variant?.type}</strong>
                             </button>
                         </div>
                     </div>

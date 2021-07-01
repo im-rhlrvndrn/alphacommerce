@@ -1,11 +1,12 @@
 const router = require('express').Router();
 const Books = require('../models/books.model');
 const data = require('../data');
-const { CustomError, errorResponse, successResponse } = require('../utils/errorHandlers');
+const { errorResponse, successResponse } = require('../utils/errorHandlers');
+const { CustomError } = require('../services');
 
 router
     .route('/')
-    .get(async (req, res) => {
+    .get(async (req, res, next) => {
         const { genre = 'horror' } = req.query;
         try {
             const returnedBooks = await Books.find({});
@@ -13,14 +14,10 @@ router
             return res.status(200).json({ success: true, books: returnedBooks });
         } catch (error) {
             console.error(error);
-            errorResponse(res, {
-                code: +error.code,
-                message: error.message,
-                toast: error.toastStatus,
-            });
+            return next(error);
         }
     })
-    .post(async (req, res) => {
+    .post(async (req, res, next) => {
         const { body } = req;
         try {
             const { type } = body;
@@ -30,9 +27,10 @@ router
                     const returnedBooks = await Books.find({ genres: { $in: [genre] } }).limit(
                         limit || 0
                     );
+                    if (!returnedBooks.length)
+                        return next(CustomError.notFound(`Couldn't find any books`));
 
                     return successResponse(res, {
-                        status: 200,
                         success: true,
                         data: { books: returnedBooks.map((book) => book._doc) },
                         toast: {
@@ -43,59 +41,46 @@ router
                 }
 
                 default:
-                    throw new CustomError('500', 'failed', 'Invalid operation type');
+                    return next(CustomError.serverError('Invalid operation type'));
             }
         } catch (error) {
             console.error(error);
-            errorResponse(res, {
-                code: +error.code,
-                message: +error.message,
-                toast: error.toastStatus,
-            });
+            return next(error);
         }
     });
 
 router.param('bookId', async (req, res, next, bookId) => {
     try {
         const returnedBook = await Books.findOne({ _id: bookId });
-        if (!returnedBook) throw new CustomError('404', 'failed', 'No book found!');
+        if (!returnedBook) return next(CustomError.notFound('Book not found!'));
 
         req.book = returnedBook;
         next();
     } catch (error) {
         console.error(error);
-        errorResponse(res, { code: +error.code, message: error.message, toast: error.toastStatus });
+        return next(error);
     }
 });
 
 router
     .route('/:bookId')
-    .get(async (req, res) => {
+    .get(async (req, res, next) => {
         try {
-            console.log('Book entry => ', req.book._doc);
-            res.status(200).json({ success: true, book: { ...req.book._doc } });
+            successResponse(res, { success: true, data: { book: { ...req.book._doc } } });
         } catch (error) {
             console.error(error);
-            errorResponse(res, {
-                code: +error.code,
-                message: error.message,
-                toast: error.toastStatus,
-            });
+            return next(error);
         }
     })
-    .post(async (req, res) => {
+    .post(async (req, res, next) => {
         try {
         } catch (error) {
             console.error(error);
-            errorResponse(res, {
-                code: +error.code,
-                message: error.message,
-                toast: error.toastStatus,
-            });
+            return next(error);
         }
     });
 
-router.get('/create', async (req, res) => {
+router.get('/create', async (req, res, next) => {
     try {
         data.forEach(async (book) => {
             const returnedBook = await Books.findOne({ name: book.name });
@@ -134,10 +119,10 @@ router.get('/create', async (req, res) => {
 
             const savedBook = await newBook.save();
             if (!savedBook)
-                throw new CustomError(
-                    '500',
-                    'failed',
-                    'Could not create the book entity. Please try again later'
+                return next(
+                    CustomError.serverError(
+                        'Could not create the book entity. Please try again later'
+                    )
                 );
         });
         res.status(201).json({
@@ -145,11 +130,8 @@ router.get('/create', async (req, res) => {
                 'Successfully stored all the books in the DB. Click here to check books in DB https://cloud.mongodb.com/v2/607509072e6f9572e9fc6348#metrics/replicaSet/60750a80cfc0d057347cf05f/explorer/AlphaReads/books/find',
         });
     } catch (error) {
-        errorResponse(res, {
-            statusCode: +error.code,
-            message: error.message,
-            toast: error.toastStatus,
-        });
+        console.error('Error => ', error);
+        return next(error);
     }
 });
 
