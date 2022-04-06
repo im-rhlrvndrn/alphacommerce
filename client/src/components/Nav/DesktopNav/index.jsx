@@ -58,16 +58,10 @@ export const DesktopNav = ({ setAuthModal }) => {
                 <h1 className='text-lg logo m-0 mr-8'>
                     <Link to='/' style={{ color: theme.color }}>
                         {isLightTheme ? <DarkLogo /> : <LightLogo />}
-                        AlphaReads
+                        {/* AlphaReads */}
                     </Link>
                 </h1>
-                <input
-                    className='searchbar'
-                    type='text'
-                    name='searchbar'
-                    id='nav-searchbar'
-                    placeholder='Search a book'
-                />
+                
                 <Link to=''>
                     <span className='mr-8' style={{ color: theme.color }}>
                         Hello, {currentUser?.full_name}

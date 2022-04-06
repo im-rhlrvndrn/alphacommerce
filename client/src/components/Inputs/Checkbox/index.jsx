@@ -1,36 +1,37 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTheme } from '../../../context/ThemeProvider';
 import { useDataLayer } from '../../../context/DataProvider';
 
 // styles
 import './checkbox.scss';
+import { alreadyExists } from '../../../utils';
 
 export const Checkbox = ({ data, dispatchType }) => {
     const { name, type } = data;
     const { theme } = useTheme();
     const [{ genreFilters, authorFilters }, dataDispatch] = useDataLayer();
-    const [isChecked, setIsChecked] = useState(
-        genreFilters.includes(name) || authorFilters.includes(name) || false
-    );
+    const [isChecked, setIsChecked] = useState(false);
+
+    console.log('It is filter => ', { genreFilters, name, includes: genreFilters.includes(name) });
+
+    useEffect(() => {
+        if (genreFilters.includes(name) || authorFilters.includes(name))
+            setIsChecked((prevState) => true);
+        else setIsChecked((prevState) => false);
+    }, [genreFilters, authorFilters]);
 
     const handleCheckboxChange = (event) => {
         if ((event.key = 'Enter')) {
             setIsChecked((prevState) => !prevState);
-            dataDispatch({ type: dispatchType, payload: name });
+            const filter = dispatchType === 'FILTER_BY_GENRE' ? genreFilters : authorFilters;
+
+            dataDispatch({
+                type: dispatchType,
+                payload: alreadyExists(filter, name)
+                    ? [...filter.filter((item) => item !== name)]
+                    : [...filter, name],
+            });
         }
-        // const Url = new URL(window?.location?.href);
-        // // console.log('URL => ', Url);
-        // console.log('Genre param => ', Url.searchParams.get('genre'));
-        // // Url.searchParams.set('genre', `${Url.searchParams.get('genre')},${name}`);
-        // console.log('Search params => ', Url.searchParams);
-        // const searchParam = Url.searchParams.get(type);
-        // navigate({
-        //     pathname: '/p',
-        //     search: `?${createSearchParams({
-        //         // ...Url.searchParams.forEach((value, key) => ({ [key]: value })),
-        //         [type]: `${searchParam ? `${searchParam},` : ''}${name}`,
-        //     })}`,
-        // });
     };
 
     return (

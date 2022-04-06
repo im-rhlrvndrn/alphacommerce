@@ -1,0 +1,9 @@
+.variant-modal .variant-option {
+  padding: 1rem;
+  cursor: pointer;
+}
+
+.variant-modal .variant-option:hover {
+  border: 1px solid white;
+}
+/*# sourceMappingURL=variantmodal.css.map */

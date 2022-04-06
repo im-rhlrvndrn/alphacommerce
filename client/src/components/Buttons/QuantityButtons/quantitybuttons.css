@@ -1,0 +1,36 @@
+.quantityBtns {
+  height: 50px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  position: relative;
+  width: 100%;
+}
+
+.quantityBtns input {
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+  width: 100px;
+  text-align: center;
+  background-color: transparent;
+  /* Chrome, Safari, Edge, Opera */
+  /* Firefox */
+}
+
+.quantityBtns input::-webkit-outer-spin-button, .quantityBtns input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.quantityBtns input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+.quantityBtns button {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0 1.5rem;
+}
+/*# sourceMappingURL=quantitybuttons.css.map */

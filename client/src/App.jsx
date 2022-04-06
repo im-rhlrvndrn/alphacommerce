@@ -1,7 +1,5 @@
 import axios from './axios';
-import Cookies from 'js-cookie';
 import { useEffect } from 'react';
-import { useAuth } from './context/AuthProvider';
 import { useModal } from './context/ModalProvider';
 import { useDataLayer } from './context/DataProvider';
 import { useLocalStorage } from './hooks/useLocalStorage';
@@ -12,21 +10,20 @@ import './global.scss';
 
 // React components
 import { Nav } from './components/Nav';
+import { Toast } from './components/Toast';
 import { HomePage } from './pages/HomePage';
 import { CartPage } from './pages/CartPage';
 import { Wishlist } from './pages/Wishlist';
 import { ListingPage } from './pages/ListingPage';
 import { ProductPage } from './pages/ProductPage';
 import { WishlistPage } from './pages/WishlistPage';
-import { EnhancedVariantModal as VariantModal } from './components/Modals/VariantModal';
 import { EnhancedAuthModal as AuthModal } from './components/AuthModal';
+import { EnhancedVariantModal as VariantModal } from './components/Modals/VariantModal';
 import { EnhancedWishlistModal as WishlistModal } from './components/WishlistModal';
-import { Toast } from './components/Toast';
 
 export const App = () => {
-    const [{ wishlist, auth, variant: variantModal }, modalDispatch] = useModal();
-    const [{ currentUser, authModal }, authDispatch] = useAuth();
-    const [{ books, authors, genres, cart, toasts }, dataDispatch] = useDataLayer();
+    const [{ wishlist, auth, variant: variantModal }] = useModal();
+    const [{ books, toasts }, dataDispatch] = useDataLayer();
     const [saveToLocalStorage, getFromLocalStorage] = useLocalStorage();
 
     const getBooks = async () => {

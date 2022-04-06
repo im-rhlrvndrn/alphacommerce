@@ -10,8 +10,8 @@
     display: inline-block;
     box-shadow: 0 10px 20px 5px rgba(0, 0, 0, 0.1);
     @include tablet {
-        width: 200px;
-        min-width: 200px;
+        width: 250px;
+        min-width: 250px;
         height: 300px;
     }
 

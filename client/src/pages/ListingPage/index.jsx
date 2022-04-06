@@ -24,10 +24,15 @@ export const ListingPage = () => {
     useEffect(() => {}, [genreFilters, authorFilters, priceFilter]);
 
     useEffect(() => {
-        search = generateSearchParams(search);
-        if (search.genre && !genreFilters.includes(deSlugify(search.genre))) {
-            dataDispatch({ type: 'FILTER_BY_GENRE', payload: deSlugify(search.genre) });
-        }
+        // ! Commented until the URL STATE method is tested
+        // search = generateSearchParams(search);
+        // if (search.genre && !genreFilters.includes(deSlugify(search.genre))) {
+        //     dataDispatch({ type: 'FILTER_BY_GENRE', payload: deSlugify(search.genre) });
+        // }
+
+        if (state?.genre && !genreFilters.includes(state?.genre))
+            dataDispatch({ type: 'FILTER_BY_GENRE', payload: [state?.genre] });
+        else dataDispatch({ type: 'FILTER_BY_GENRE', payload: [] });
 
         window.scrollTo({
             top: 0,
@@ -36,10 +41,10 @@ export const ListingPage = () => {
         });
     }, []);
 
-    // console.log('filteredProducts', filteredProducts);
     console.log('url state: ', {
         state,
         search: generateSearchParams(search),
+        genreFilters,
     });
 
     return (
@@ -50,7 +55,10 @@ export const ListingPage = () => {
             {/* <div className='category-page-hero-section'>{deSlugify(urlParams.genre)}</div> */}
             <main style={{ color: theme.color }}>
                 <div className='main-header' style={{ opacity: 0.6 }}>
-                    {filteredProducts.length} results found
+                    <p>{filteredProducts.length} results found</p>
+                    <div className='active-labels'>
+                        <div className='filter-label'>{genreFilters[0]}</div>
+                    </div>
                 </div>
                 <div className='main-container'>
                     <Filter />

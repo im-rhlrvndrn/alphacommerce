@@ -1,6 +1,6 @@
 import axios from '../../axios';
 import { slugify } from '../../utils';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useTheme } from '../../context/ThemeProvider';
 
@@ -12,9 +12,10 @@ import { CategoryListItem } from './CategoryListitem';
 
 export const CategoryList = ({ genre }) => {
     const { theme } = useTheme();
+    const navigate = useNavigate();
     const [books, setBooks] = useState([]);
 
-    const fetchBooks = async (limit = 5) => {
+    const fetchBooksByGenre = async (limit = 5) => {
         try {
             const {
                 data: { success, data, toast },
@@ -23,16 +24,14 @@ export const CategoryList = ({ genre }) => {
                 limit,
                 genre,
             });
-            if (success)
-                setBooks(
-                    (prevState) => data.books /*.filter((item) => item.genres.includes(genre))*/
-                );
+            if (success) setBooks((prevState) => data.books);
         } catch (error) {
             console.error(error);
         }
     };
+
     useEffect(() => {
-        fetchBooks(6);
+        fetchBooksByGenre(6);
     }, []);
 
     return (
@@ -43,15 +42,21 @@ export const CategoryList = ({ genre }) => {
                     <span style={{ color: theme.color }} className='floating-genre'>
                         {genre}
                     </span>
-                    <Link
+                    {/* <Link
                         style={{ color: theme.color }}
                         to={{
                             pathname: `/p`,
                             search: `?genre=${slugify(genre)}`,
-                            state: { hello: 'everyone' },
-                        }}>
+                        }}
+                    >
                         Show all
-                    </Link>
+                    </Link> */}
+                    <button
+                        style={{ color: theme.color, backgroundColor: 'transparent', padding: 0 }}
+                        onClick={() => navigate('/p', { state: { genre } })}
+                    >
+                        Show all
+                    </button>
                 </div>
             )}
             <div className='category-list flex'>

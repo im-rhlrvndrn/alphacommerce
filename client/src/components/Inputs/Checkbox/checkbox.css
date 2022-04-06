@@ -1,0 +1,23 @@
+.input-checkbox {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.input-checkbox * {
+  cursor: pointer;
+}
+
+.input-checkbox .dup-checkbox {
+  width: 20px;
+  height: 20px;
+  display: block;
+  position: relative;
+  margin-right: 1rem;
+}
+
+.input-checkbox label {
+  text-transform: capitalize;
+}
+/*# sourceMappingURL=checkbox.css.map */

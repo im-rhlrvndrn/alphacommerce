@@ -25,6 +25,18 @@
 
         .main-header {
             margin-bottom: 1rem;
+
+            .active-labels{
+                display:flex;
+                flex-wrap:wrap;
+
+                .filter-labels{
+                    padding: .8rem;
+                    background-color: yellow;
+                    color: black;
+                    text-transform: lowercase;
+                }
+            }
         }
 
         .filter-container {

@@ -1,4 +1,3 @@
-import { v4 } from 'uuid';
 import { alreadyExists } from '../../utils';
 import { getDataFromLocalStorage, saveDataToLocalStorage } from '../../hooks/useLocalStorage';
 
@@ -98,24 +97,18 @@ export const reducer = (state, { type, payload }) => {
         case 'FILTER_BY_GENRE': {
             return {
                 ...state,
-                genreFilters: alreadyExists(state.genreFilters, payload)
-                    ? [...state.genreFilters.filter((item) => item !== payload)]
-                    : [...state.genreFilters, payload],
+                genreFilters: [...payload],
             };
         }
 
         case 'SORT_BY_PRICE': {
-            console.log('price filter: ', payload);
             return { ...state, priceFilter: payload === state.priceFilter ? '' : payload };
         }
 
         case 'FILTER_BY_AUTHOR': {
-            console.log('alreadyExists: ', alreadyExists(state.authorFilters, payload));
             return {
                 ...state,
-                authorFilters: alreadyExists(state.authorFilters, payload)
-                    ? [...state.authorFilters.filter((item) => item !== payload)]
-                    : [...state.authorFilters, payload],
+                authorFilters: [...payload],
             };
         }
 

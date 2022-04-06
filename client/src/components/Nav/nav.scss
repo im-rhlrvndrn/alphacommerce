@@ -10,19 +10,15 @@ nav {
     align-items: center;
     justify-content: flex-end;
 
+    .logo {
+        flex: 1;
+    }
+
     .toggle-theme {
         padding: 0;
         background-color: transparent;
         cursor: pointer;
         height: 24px;
-    }
-
-    input {
-        height: 50px;
-        padding: 0 1rem;
-        margin: 0 2rem 0 0;
-        background: $light;
-        border-radius: var(--br-5);
     }
 
     a {

@@ -1,5 +1,6 @@
 import { v4 } from 'uuid';
 import { useState } from 'react';
+import { useTheme } from '../../context/ThemeProvider';
 import { useDataLayer } from '../../context/DataProvider';
 
 // styles
@@ -10,6 +11,7 @@ import { Accordion } from '../Accordion';
 import { Checkbox, Radio } from '../Inputs';
 
 export const Filter = () => {
+    const { theme } = useTheme();
     const [{ genres, authors }, dataDispatch] = useDataLayer();
     const accordionList = [
         {
@@ -85,7 +87,17 @@ export const Filter = () => {
                     updateAccordion={updateAccordion}
                     options={{ heading, id, isActive }}
                 >
-                    {renderFilterOptions(heading)}
+                    <button
+                        style={{
+                            marginBottom: '1rem',
+                            color: theme.constants.primary,
+                            backgroundColor: 'transparent',
+                            padding: 0,
+                        }}
+                    >
+                        Clear all filters
+                    </button>
+                    <div className='filters'>{renderFilterOptions(heading)}</div>
                 </Accordion>
             ))}
         </div>

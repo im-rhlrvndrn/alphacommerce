@@ -1,20 +1,34 @@
 @import '../../mixins.scss';
 
-// .accordion {
-//     margin-bottom: 1rem;
+.accordion {
+    padding: 1.5rem 2rem;
+    margin-bottom: 1rem;
+    max-height: 400px;
+    overflow-y: hidden;
 
-//     &_heading {
-//         display: flex;
-//         align-items: center;
-//         justify-content: space-between;
-//         text-transform: capitalize;
-//         font-weight: 600;
-//         cursor: pointer;
-//         transition: 0.4s all ease-in-out;
+    .filters {
+        height: 300px;
+        overflow-y: auto;
 
-//         span {
-//             font-size: $lg-text;
-//             font-weight: 400;
-//         }
-//     }
-// }
+        /* width */
+        &::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        /* Track */
+        &::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        /* Handle */
+        &::-webkit-scrollbar-thumb {
+            background: #888;
+        }
+
+        /* Handle on hover */
+        &::-webkit-scrollbar-thumb:hover {
+            background: #555;
+            cursor: pointer;
+        }
+    }
+}
